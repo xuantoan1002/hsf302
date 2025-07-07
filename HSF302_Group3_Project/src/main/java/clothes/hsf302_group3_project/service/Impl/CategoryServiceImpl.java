@@ -1,6 +1,6 @@
 package clothes.hsf302_group3_project.service.Impl;
 
-import clothes.hsf302_group3_project.dto.CategoryDTO;
+import clothes.hsf302_group3_project.dto.response.CategoryDTO;
 import clothes.hsf302_group3_project.entity.Category;
 import clothes.hsf302_group3_project.repository.CategoryRepository;
 import clothes.hsf302_group3_project.repository.ProductRepository;

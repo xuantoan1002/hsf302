@@ -1,6 +1,6 @@
 package clothes.hsf302_group3_project.converter;
 
-import clothes.hsf302_group3_project.dto.ProductDTO;
+import clothes.hsf302_group3_project.dto.response.ProductDTO;
 import clothes.hsf302_group3_project.entity.Product;
 import org.springframework.stereotype.Component;
 
