@@ -8,11 +8,14 @@ import clothes.hsf302_group3_project.entity.CartItem;
 import clothes.hsf302_group3_project.entity.User;
 import clothes.hsf302_group3_project.repository.CartRepository;
 import clothes.hsf302_group3_project.repository.UserRepository;
+import clothes.hsf302_group3_project.service.CartService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +26,13 @@ public class CartController {
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
     private final ConverterDTO converterDTO;
+    private final CartService cartService;
 
-    public CartController(CartRepository cartRepository, UserRepository userRepository, ConverterDTO converterDTO) {
+    public CartController(CartRepository cartRepository, UserRepository userRepository, ConverterDTO converterDTO, CartService cartService) {
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
         this.converterDTO = converterDTO;
+        this.cartService = cartService;
     }
 
     @GetMapping("/cart")
@@ -37,7 +42,7 @@ public class CartController {
 //        User user = this.userRepository.getById(id);
         User user = userRepository.findById(1l).get();
         Cart cart = this.cartRepository.findByUser(user);
-        CartDTO cartDTO = converterDTO.convertToCartDTO(cart);
+        CartDTO cartDTO = cart == null ? new CartDTO() : converterDTO.convertToCartDTO(cart) ;
         List<CartItem> cartItems = cart == null ? new ArrayList<>() : cart.getCartItems();
         List<CartItemDTO> cartItemDTOs = new ArrayList<>();
         for(CartItem cartItem : cartItems) {
@@ -54,4 +59,13 @@ public class CartController {
 
         return "cart";
     }
+
+    @PostMapping("/delete-cart-product/{id}")
+    public String deleteCartDetail(@PathVariable long id, HttpServletRequest request){
+        HttpSession session = request.getSession(false);
+        long cartItemId = id;
+        this.cartService.handleRemoveCartItem(cartItemId, session);
+        return "redirect:/cart";
+    }
+
 }
