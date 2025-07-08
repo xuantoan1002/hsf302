@@ -1,11 +1,20 @@
 package clothes.hsf302_group3_project.converter;
 
 import clothes.hsf302_group3_project.dto.response.ProductDTO;
+import clothes.hsf302_group3_project.dto.response.UserDTO;
 import clothes.hsf302_group3_project.entity.Product;
+import clothes.hsf302_group3_project.entity.User;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ConverterDTO {
+
+    private final ModelMapper modelMapper;
+    private final DateTimeConverter dateTimeConverter;
+
     public ProductDTO convertToProductDTO(Product product) {
         ProductDTO dto = new ProductDTO();
         dto.setId(product.getId());
@@ -19,14 +28,9 @@ public class ConverterDTO {
     }
 
     public UserDTO convertToUserDTO(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setName(user.getName());
-        dto.setEmail(user.getEmail());
-        dto.setPassword(user.getPassword());
-        dto.setPhone(user.getPhone());
-        dto.setRole(user.getRole());
-        dto.setCreatedAt(user.getCreatedAt());
+        if (user == null) return null;
+        UserDTO dto = modelMapper.map(user, UserDTO.class);
+        dto.setCreatedAt(dateTimeConverter.toString(user.getCreatedAt()));
         return dto;
     }
 
@@ -47,5 +51,4 @@ public class ConverterDTO {
         dto.setProduct(convertToProductDTO(cartItem.getProduct()));
         return dto;
     }
-    
 }

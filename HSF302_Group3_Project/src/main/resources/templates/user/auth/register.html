@@ -25,27 +25,61 @@
             <div class="col-lg-6">
                 <div class="login_form_inner">
                     <h3>Register new account</h3>
-                    <form class="row login_form" th:action="@{/login}" method="post" id="loginForm"
+                    <form class="row login_form"
+                          th:action="@{/register}"
+                          th:object="${registerRequest}"
+                          method="post"
+                          id="registerForm"
                           novalidate="novalidate">
+
+                        <!-- Email -->
                         <div class="col-md-12 form-group">
-                            <input type="text" class="form-control" name="email" placeholder="Email"
+                            <input type="text" class="form-control" th:field="*{email}" placeholder="Email"
                                    onfocus="this.placeholder = ''" onblur="this.placeholder = 'Email'">
+                            <p class="form-text text-danger small mt-1 mb-0 text-left"
+                               th:if="${#fields.hasErrors('email')}">
+                                <i class="fa fa-exclamation-circle mr-1"></i>
+                                <span th:errors="*{email}"></span>
+                            </p>
                         </div>
+
+                        <!-- Password -->
                         <div class="col-md-12 form-group">
-                            <input type="password" class="form-control" name="password" placeholder="Password"
+                            <input type="password" class="form-control" th:field="*{password}" placeholder="Password"
                                    onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'">
+                            <p class="form-text text-danger small mt-1 mb-0 text-left"
+                               th:if="${!#fields.hasErrors('email') and #fields.hasErrors('password')}">
+                                <i class="fa fa-exclamation-circle mr-1"></i>
+                                <span th:errors="*{password}"></span>
+                            </p>
                         </div>
+
+                        <!-- Confirm Password -->
                         <div class="col-md-12 form-group">
-                            <input type="password" class="form-control" name="confirmPassword"
+                            <input type="password" class="form-control" th:field="*{confirmPassword}"
                                    placeholder="Confirm Password"
                                    onfocus="this.placeholder = ''" onblur="this.placeholder = 'Confirm Password'">
+                            <p class="form-text text-danger small mt-1 mb-0 text-left"
+                               th:if="${!#fields.hasErrors('email') and !#fields.hasErrors('password') and #fields.hasErrors('confirmPassword')}">
+                                <i class="fa fa-exclamation-circle mr-1"></i>
+                                <span th:errors="*{confirmPassword}"></span>
+                            </p>
                         </div>
+
+                        <!-- Agree to Terms -->
                         <div class="col-md-12 form-group">
                             <div class="creat_account">
-                                <input type="checkbox" id="f-option2" name="remember-me">
+                                <input type="checkbox" id="f-option2" th:field="*{agreeTerms}">
                                 <label for="f-option2">I agree to the terms of the site</label>
                             </div>
+                            <p class="form-text text-danger small mt-1 mb-0 text-left"
+                               th:if="${!#fields.hasErrors('email') and !#fields.hasErrors('password') and !#fields.hasErrors('confirmPassword') and #fields.hasErrors('agreeTerms')}">
+                                <i class="fa fa-exclamation-circle mr-1"></i>
+                                <span th:errors="*{agreeTerms}"></span>
+                            </p>
                         </div>
+
+                        <!-- Submit -->
                         <div class="col-md-12 form-group">
                             <button type="submit" class="primary-btn">Register</button>
                         </div>
@@ -65,7 +99,7 @@
     </div>
 </section>
 
-<div th:replace="user/fragment/footer :: footer"></div>
+<div th:replace="/user/fragment/footer :: footer"></div>
 
 <script th:src="@{/user/js/vendor/jquery-2.2.4.min.js}"></script>
 <script th:src="@{/user/js/vendor/bootstrap.min.js}"></script>

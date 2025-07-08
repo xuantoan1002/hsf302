@@ -1,25 +1,19 @@
 package clothes.hsf302_group3_project.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDTO {
+
     private Long id;
-    private String name;
     private String email;
-    private String password;
-    private String role;
+    private String name;
     private String phone;
-    private LocalDateTime createdAt;
-    private List<OrderDTO> orders;
-    private List<OrderDTO> assignedShipments;
+    private String role;
+    private String createdAt;
+    private String isVerified;
 }
