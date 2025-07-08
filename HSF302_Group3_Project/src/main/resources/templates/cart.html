@@ -129,47 +129,55 @@
                                 <th scope="col">Price</th>
                                 <th scope="col">Quantity</th>
                                 <th scope="col">Total</th>
+                                <th scope="col">Remove Item</th>
                             </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="item : ${cartItems}">
-                            <td>
-                                <div class="media">
-                                    <div class="d-flex">
-                                        <!--                                        <img th:src="@{${item.product.imageUrl}}" alt="Product Image">-->
+                            <tr th:each="item : ${cartItems}">
+                                <td>
+                                    <div class="media">
+                                        <div class="d-flex">
+                                            <!--<img th:src="@{${item.product.imageUrl}}" alt="Product Image">-->
+                                        </div>
+                                        <div class="media-body">
+                                            <p th:text="${item.product.name}">Product Name</p>
+                                        </div>
                                     </div>
-                                    <div class="media-body">
-                                        <p th:text="${item.product.name}">Product Name</p>
+                                </td>
+                                <td>
+                                    <h5 th:text="'$' + ${item.price}" th:id="'price-' + ${item.id}">Price</h5>
+                                </td>
+                                <td>
+                                    <div class="product_count">
+                                        <input type="text"
+                                               name="qty"
+                                               maxlength="12"
+                                               th:value="${item.quantity}"
+                                               class="input-text qty"
+                                               th:id="'qty-' + ${item.id}"
+                                               th:oninput="'updateTotal(' + ${item.id} + ')'" />
+                                        <button class="increase items-count" type="button"
+                                                th:onclick="'increaseQuantity(' + ${item.id} + ')'">
+                                            <i class="lnr lnr-chevron-up"></i>
+                                        </button>
+                                        <button class="reduced items-count" type="button"
+                                                th:onclick="'decreaseQuantity(' + ${item.id} + ')'">
+                                            <i class="lnr lnr-chevron-down"></i>
+                                        </button>
                                     </div>
-                                </div>
-                            </td>
-                            <td>
-                                <h5 th:text="'$' + ${item.price}" th:id="'price-' + ${item.id}">Price</h5>
-                            </td>
-                            <td>
-                                <div class="product_count">
-                                    <input type="text"
-                                           name="qty"
-                                           maxlength="12"
-                                           th:value="${item.quantity}"
-                                           class="input-text qty"
-                                           th:id="'qty-' + ${item.id}"
-                                           th:oninput="'updateTotal(' + ${item.id} + ')'" />
-                                    <button class="increase items-count" type="button"
-                                            th:onclick="'increaseQuantity(' + ${item.id} + ')'">
-                                        <i class="lnr lnr-chevron-up"></i>
-                                    </button>
-                                    <button class="reduced items-count" type="button"
-                                            th:onclick="'decreaseQuantity(' + ${item.id} + ')'">
-                                        <i class="lnr lnr-chevron-down"></i>
-                                    </button>
-                                </div>
-                            </td>
-                            <td>
-                                <h5 th:id="'total-' + ${item.id}"
-                                    th:text="'$' + ${item.price * item.quantity}">Total</h5>
-                            </td>
-                        </tr>
+                                </td>
+                                <td>
+                                    <h5 th:id="'total-' + ${item.id}"
+                                        th:text="'$' + ${item.price * item.quantity}">Total</h5>
+                                </td>
+                                <td>
+                                    <form th:action="@{/delete-cart-product/{id}(id=${item.id})}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
 
                             <tr class="bottom_button">
                                 <td>
@@ -238,15 +246,9 @@
                                 </td>
                             </tr>
                             <tr class="out_button_area">
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
-                                <td>
-
-                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                                 <td>
                                     <div class="checkout_btn_inner d-flex align-items-center">
                                         <a class="gray_btn" href="#">Continue Shopping</a>
