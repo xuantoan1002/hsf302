@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(password))
                 .isVerified(false)
                 .createdAt(LocalDateTime.now())
-                .role("USER")
+                .role("CUSTOMER")
                 .build();
 
         userRepository.save(user);

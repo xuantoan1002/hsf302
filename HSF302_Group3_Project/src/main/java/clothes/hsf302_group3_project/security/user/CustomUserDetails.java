@@ -48,4 +48,9 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return user.getIsVerified();
     }
+
+    public boolean isMustChangePassword() {
+        return user.getMustChangePassword();
+    }
+
 }

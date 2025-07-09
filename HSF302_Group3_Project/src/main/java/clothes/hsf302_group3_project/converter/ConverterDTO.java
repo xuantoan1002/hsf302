@@ -31,6 +31,7 @@ public class ConverterDTO {
         if (user == null) return null;
         UserDTO dto = modelMapper.map(user, UserDTO.class);
         dto.setCreatedAt(dateTimeConverter.toString(user.getCreatedAt()));
+        dto.setToShipperAt(dateTimeConverter.toString(user.getToShipperAt()));
         return dto;
     }
 

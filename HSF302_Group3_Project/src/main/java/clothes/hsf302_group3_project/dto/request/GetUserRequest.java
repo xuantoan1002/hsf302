@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GetAdminRequest {
+public class GetUserRequest {
 
     private String email;
     private String name;

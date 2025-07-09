@@ -15,5 +15,6 @@ public class UserDTO {
     private String phone;
     private String role;
     private String createdAt;
+    private String toShipperAt;
     private String isVerified;
 }
