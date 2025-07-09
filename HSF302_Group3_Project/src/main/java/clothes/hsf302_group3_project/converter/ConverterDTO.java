@@ -1,9 +1,11 @@
 package clothes.hsf302_group3_project.converter;
 
+import clothes.hsf302_group3_project.dto.response.CartDTO;
+import clothes.hsf302_group3_project.dto.response.CartItemDTO;
 import clothes.hsf302_group3_project.dto.response.ProductDTO;
 import clothes.hsf302_group3_project.dto.response.UserDTO;
-import clothes.hsf302_group3_project.entity.Product;
-import clothes.hsf302_group3_project.entity.User;
+import clothes.hsf302_group3_project.entity.*;
+import clothes.hsf302_group3_project.entity.Cart;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

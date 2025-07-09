@@ -21,18 +21,18 @@ public class AuthController {
 
     @GetMapping("/login")
     public ModelAndView getLoginPage() {
-        return new ModelAndView("user/auth/login");
+        return new ModelAndView("/user/auth/login");
     }
 
     @GetMapping("/register")
     public ModelAndView getRegisterPage() {
-        return new ModelAndView("user/auth/register")
+        return new ModelAndView("/user/auth/register")
                 .addObject("registerRequest", new RegisterRequest());
     }
 
     @GetMapping("/forgot-password")
     public ModelAndView getResetPasswordPage() {
-        return new ModelAndView("user/auth/forgot-password");
+        return new ModelAndView("/user/auth/forgot-password");
     }
 
     @GetMapping("/verify-account")
@@ -40,7 +40,7 @@ public class AuthController {
         VerifyAccountRequest verifyRequest = new VerifyAccountRequest();
         verifyRequest.setEmail(email);
 
-        ModelAndView mav = new ModelAndView("user/auth/verify-account");
+        ModelAndView mav = new ModelAndView("/user/auth/verify-account");
         mav.addObject("verifyAccountRequest", verifyRequest);
         return mav;
     }
@@ -48,7 +48,7 @@ public class AuthController {
     @PostMapping("/register")
     public ModelAndView register(@Valid @ModelAttribute RegisterRequest registerRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return new ModelAndView("user/auth/register");
+            return new ModelAndView("/user/auth/register");
         }
         authService.register(registerRequest);
         return new ModelAndView("redirect:/verify-account?email=" + registerRequest.getEmail());
@@ -62,7 +62,7 @@ public class AuthController {
     @PostMapping("/verify-account")
     public ModelAndView verifyAccount(@Valid @ModelAttribute VerifyAccountRequest verifyRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return new ModelAndView("user/auth/verify-account");
+            return new ModelAndView("/user/auth/verify-account");
         }
         authService.verifyAccount(verifyRequest);
         return new ModelAndView("redirect:/login");
