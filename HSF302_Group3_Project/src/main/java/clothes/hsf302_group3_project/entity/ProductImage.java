@@ -1,13 +1,11 @@
 package clothes.hsf302_group3_project.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-@Builder
 @Entity
 @Table(name = "product_image")
 public class ProductImage {
@@ -22,5 +20,5 @@ public class ProductImage {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-    
+
 }

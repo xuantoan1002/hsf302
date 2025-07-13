@@ -1,10 +1,12 @@
 package clothes.hsf302_group3_project.service.Impl;
 
-import clothes.hsf302_group3_project.dto.response.CategoryDTO;
+import clothes.hsf302_group3_project.dto.CategoryDTO;
 import clothes.hsf302_group3_project.entity.Category;
+import clothes.hsf302_group3_project.exception.ResourceNotFoundException;
 import clothes.hsf302_group3_project.repository.CategoryRepository;
 import clothes.hsf302_group3_project.repository.ProductRepository;
 import clothes.hsf302_group3_project.service.CategoryService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +40,39 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         return result;
+    }
+    @Override
+    @Transactional
+    public CategoryDTO createCategory(CategoryDTO categoryDTO) {
+        Category category = new Category();
+        category.setName(categoryDTO.getName());
+        Category savedCategory = categoryRepository.save(category);
+        return new CategoryDTO(savedCategory.getId(), savedCategory.getName());
+    }
+
+    @Override
+    @Transactional
+    public CategoryDTO updateCategory(Integer id, CategoryDTO categoryDTO) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        category.setName(categoryDTO.getName());
+        Category updatedCategory = categoryRepository.save(category);
+        return new CategoryDTO(updatedCategory.getId(), updatedCategory.getName());
+    }
+
+    @Override
+    @Transactional
+    public void deleteCategory(Integer id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        categoryRepository.delete(category);
+    }
+
+    @Override
+    public CategoryDTO getCategoryById(Integer id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        return new CategoryDTO(category.getId(), category.getName());
     }
 
 

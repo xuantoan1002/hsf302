@@ -8,4 +8,6 @@ import java.util.List;
 public interface ProductImageRepository extends JpaRepository<ProductImage, Integer> {
     List<ProductImage> findByProductId(Integer productId);
 
+    // Phương thức đã có trước đó
+    List<ProductImage> findByProductIdOrderByIdAsc(Integer productId);
 }

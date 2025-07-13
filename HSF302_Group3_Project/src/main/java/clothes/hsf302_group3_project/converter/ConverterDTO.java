@@ -1,20 +1,18 @@
 package clothes.hsf302_group3_project.converter;
 
-import clothes.hsf302_group3_project.dto.response.CartDTO;
-import clothes.hsf302_group3_project.dto.response.CartItemDTO;
-import clothes.hsf302_group3_project.dto.response.ProductDTO;
-import clothes.hsf302_group3_project.dto.response.UserDTO;
-import clothes.hsf302_group3_project.entity.*;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
+import clothes.hsf302_group3_project.dto.ProductDTO;
+import clothes.hsf302_group3_project.dto.ProductImageDTO;
+import clothes.hsf302_group3_project.dto.ProductSizeDTO;
+import clothes.hsf302_group3_project.entity.Product;
+import clothes.hsf302_group3_project.entity.ProductImage;
+import clothes.hsf302_group3_project.entity.ProductSize;
 import org.springframework.stereotype.Component;
 
-@Component
-@RequiredArgsConstructor
-public class ConverterDTO {
+import java.util.List;
+import java.util.stream.Collectors;
 
-    private final ModelMapper modelMapper;
-    private final DateTimeConverter dateTimeConverter;
+@Component
+public class ConverterDTO {
 
     public ProductDTO convertToProductDTO(Product product) {
         ProductDTO dto = new ProductDTO();
@@ -25,32 +23,31 @@ public class ConverterDTO {
         dto.setStock(product.getStock());
         dto.setCategoryId(product.getCategory() != null ? product.getCategory().getId() : null);
         dto.setStatus(product.getStatus());
+        dto.setCreatedAt(product.getCreatedAt());
+
+        if (product.getImages() != null) {
+            List<ProductImageDTO> imageDTOs = product.getImages().stream()
+                    .map(this::convertToProductImageDTO)
+                    .collect(Collectors.toList());
+            dto.setImages(imageDTOs);
+        }
+
         return dto;
     }
 
-    public UserDTO convertToUserDTO(User user) {
-        if (user == null) return null;
-        UserDTO dto = modelMapper.map(user, UserDTO.class);
-        dto.setCreatedAt(dateTimeConverter.toString(user.getCreatedAt()));
-        dto.setToShipperAt(dateTimeConverter.toString(user.getToShipperAt()));
+    public ProductImageDTO convertToProductImageDTO(ProductImage image) {
+        ProductImageDTO dto = new ProductImageDTO();
+        dto.setId(image.getId());
+        dto.setImageUrl(image.getImageUrl());
+        dto.setProductId(image.getProduct() != null ? image.getProduct().getId() : null);
         return dto;
     }
 
-    public CartDTO convertToCartDTO(Cart cart) {
-        CartDTO dto = new CartDTO();
-        dto.setId(cart.getId());
-        dto.setSum(cart.getSum());
-        dto.setUser(convertToUserDTO(cart.getUser()));
-        return dto;
-    }
-
-    public CartItemDTO convertToCartItemDTO(CartItem cartItem) {
-        CartItemDTO dto = new CartItemDTO();
-        dto.setId(cartItem.getId());
-        dto.setCart(convertToCartDTO(cartItem.getCart()));
-        dto.setQuantity(cartItem.getQuantity());
-        dto.setPrice(cartItem.getPrice());
-        dto.setProduct(convertToProductDTO(cartItem.getProduct()));
+    public ProductSizeDTO convertToProductSizeDTO(ProductSize productSize) {
+        ProductSizeDTO dto = new ProductSizeDTO();
+        dto.setId(productSize.getId());
+        dto.setSize(productSize.getSize());
+        dto.setQuantity(productSize.getQuantity());
         return dto;
     }
 }
