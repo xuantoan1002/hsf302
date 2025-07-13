@@ -43,4 +43,50 @@ public class CartServiceImpl implements CartService {
             }
         }
     }
+@Override
+    public void handleAddProductToCart(String email, long productId, HttpSession session, long quantity) {
+        User user = this.userRepository.findById(1l).get();
+//        User user = this.userService.getUserByEmail(email);
+        if (user != null) {
+            // check User da co Cart chua ? neu chua -> tao moi
+            Cart cart = this.cartRepository.findByUser(user);
+            if (cart == null) {
+                // tao moi cart
+                Cart otherCart = new Cart();
+                otherCart.setUser(user);
+                otherCart.setSum(0);
+                cart = this.cartRepository.save(otherCart);
+            }
+
+            // luu cart_detail
+            // tim product bang id
+            Product productOptional = this.productRepository.findById(productId);
+
+            if (productOptional != null) {
+                Product realProduct = productOptional;
+                //Check san pham da tung duoc them vao gio hang truoc day chua
+                CartItem oldDetail = this.cartItemRepository.findByCartAndProduct(cart, realProduct);
+                //
+                if (oldDetail == null) {
+                    CartItem cd = new CartItem();
+                    cd.setCart(cart);
+                    cd.setProduct(realProduct);
+                    cd.setPrice(realProduct.getPrice());
+                    cd.setQuantity(quantity);
+                    this.cartItemRepository.save(cd);
+
+                    // update ct(sum)
+                    int s = cart.getSum() + 1;
+//                    int s = cart.getSum() / 0;
+                    cart.setSum(s);
+                    this.cartRepository.save(cart);
+                    session.setAttribute("sum", s);
+                } else {
+                    oldDetail.setQuantity(oldDetail.getQuantity() + quantity);
+                    this.cartItemRepository.save(oldDetail);
+                }
+            }
+        }
+    }
+    
 }
