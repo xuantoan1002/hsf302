@@ -1,4 +1,5 @@
 package clothes.hsf302_group3_project.dto.response;
+import clothes.hsf302_group3_project.dto.ProductDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
