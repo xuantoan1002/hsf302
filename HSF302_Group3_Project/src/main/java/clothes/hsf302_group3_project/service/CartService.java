@@ -4,4 +4,5 @@ import jakarta.servlet.http.HttpSession;
 
 public interface CartService {
       void handleRemoveCartItem(long id, HttpSession session);
+          void handleAddProductToCart(String email, long productId, HttpSession session, long quantity);
 }
