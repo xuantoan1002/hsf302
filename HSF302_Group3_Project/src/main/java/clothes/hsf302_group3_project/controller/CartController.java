@@ -38,24 +38,28 @@ public class CartController {
     @GetMapping("/cart")
     public String cart(Model model, HttpServletRequest request) {
         HttpSession session = request.getSession();
-//        long id  = (long) session.getAttribute("id");
-//        User user = this.userRepository.getById(id);
-        User user = userRepository.findById(1l).get();
-        Cart cart = this.cartRepository.findByUser(user);
-        CartDTO cartDTO = cart == null ? new CartDTO() : converterDTO.convertToCartDTO(cart) ;
+        // Lấy user từ session (tạm hardcode user id = 1L)
+        User user = userRepository.findById(1L).get();
+        Cart cart = cartRepository.findByUser(user);
+
+        CartDTO cartDTO = cart == null ? new CartDTO() : converterDTO.convertToCartDTO(cart);
         List<CartItem> cartItems = cart == null ? new ArrayList<>() : cart.getCartItems();
+
         List<CartItemDTO> cartItemDTOs = new ArrayList<>();
-        for(CartItem cartItem : cartItems) {
-            converterDTO.convertToCartItemDTO(cartItem);
+        for (CartItem cartItem : cartItems) {
             cartItemDTOs.add(converterDTO.convertToCartItemDTO(cartItem));
         }
+
+        cartDTO.setItems(cartItemDTOs); 
+
         double totalPrice = 0;
-        for(CartItem cartItem : cartItems) {
+        for (CartItem cartItem : cartItems) {
             totalPrice += cartItem.getPrice() * cartItem.getQuantity();
         }
+
         model.addAttribute("totalPrice", totalPrice);
-        model.addAttribute("cartItems", cartItemDTOs);
-        model.addAttribute("cart", cartDTO);
+        model.addAttribute("cartItems", cartItemDTOs); // optional nếu không dùng
+        model.addAttribute("cart", cartDTO); 
 
         return "cart";
     }
