@@ -59,7 +59,7 @@
                                 <li class="nav-item active"><a class="nav-link" href="category.html">Shop Category</a></li>
                                 <li class="nav-item"><a class="nav-link" href="single-product.html">Product Details</a></li>
                                 <li class="nav-item"><a class="nav-link" href="checkout.html">Product Checkout</a></li>
-                                <li class="nav-item"><a class="nav-link" href="cart.html">Shopping Cart</a></li>
+                                 <li class="nav-item"><a th:href="@{/cart}"  class="nav-link" >Shopping Cart</a></li>
                                 <li class="nav-item"><a class="nav-link" href="confirmation.html">Confirmation</a></li>
                             </ul>
                         </li>
@@ -216,10 +216,18 @@
 <!--                                        th:text="'$' + ${#numbers.formatDecimal(product.oldPrice, 1, 2)}">$0.00</h6>-->
                                 </div>
                                 <div class="prd-bottom">
-                                    <a href="#" class="social-info">
+<!--                                     <a href="#" class="social-info">
                                         <span class="ti-bag"></span>
                                         <p class="hover-text">add to bag</p>
-                                    </a>
+                                    </a> -->
+                                     <form th:action="@{'/add-product-to-cart/' + ${product.id}}" method="post"
+                                          style="display: inline;">
+                                        <button type="submit" class="social-info"
+                                                style="border: none; background: none; padding: 0; margin: 0; display: inline-block;">
+                                            <span class="ti-bag"></span>
+                                            <p class="hover-text">add to bag</p>
+                                        </button>
+                                    </form>
                                     <a href="#" class="social-info">
                                         <span class="lnr lnr-heart"></span>
                                         <p class="hover-text">Wishlist</p>
