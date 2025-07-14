@@ -1,6 +1,9 @@
 package clothes.hsf302_group3_project.controller;
 
 import clothes.hsf302_group3_project.dto.ProductDTO;
+import clothes.hsf302_group3_project.service.CategoryService;
+import clothes.hsf302_group3_project.service.ProductImageService;
+import clothes.hsf302_group3_project.service.ProductService;
 import clothes.hsf302_group3_project.service.ProductSizeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,13 +17,13 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    private  ProductService productService;
+    private ProductService productService;
     @Autowired
-    private  CategoryService categoryService;
+    private CategoryService categoryService;
     @Autowired
     private  ProductSizeService productSizeService;
     @Autowired
-    private  ProductImageService productImageService;
+    private ProductImageService productImageService;
 
 
 

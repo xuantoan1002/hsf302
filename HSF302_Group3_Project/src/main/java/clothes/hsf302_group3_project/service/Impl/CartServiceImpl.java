@@ -2,8 +2,12 @@ package clothes.hsf302_group3_project.service.Impl;
 
 import clothes.hsf302_group3_project.entity.Cart;
 import clothes.hsf302_group3_project.entity.CartItem;
+import clothes.hsf302_group3_project.entity.Product;
+import clothes.hsf302_group3_project.entity.User;
 import clothes.hsf302_group3_project.repository.CartItemRepository;
 import clothes.hsf302_group3_project.repository.CartRepository;
+import clothes.hsf302_group3_project.repository.ProductRepository;
+import clothes.hsf302_group3_project.repository.UserRepository;
 import clothes.hsf302_group3_project.service.CartService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
@@ -15,10 +19,14 @@ public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
-    public CartServiceImpl(CartRepository cartRepository, CartItemRepository cartItemRepository) {
+    public CartServiceImpl(CartRepository cartRepository, CartItemRepository cartItemRepository, UserRepository userRepository, ProductRepository productRepository) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -43,8 +51,9 @@ public class CartServiceImpl implements CartService {
             }
         }
     }
-@Override
-    public void handleAddProductToCart(String email, long productId, HttpSession session, long quantity) {
+
+    @Override
+    public void handleAddProductToCart(String email, int productId, HttpSession session, long quantity) {
         User user = this.userRepository.findById(1l).get();
 //        User user = this.userService.getUserByEmail(email);
         if (user != null) {
@@ -60,7 +69,7 @@ public class CartServiceImpl implements CartService {
 
             // luu cart_detail
             // tim product bang id
-            Product productOptional = this.productRepository.findById(productId);
+            Product productOptional = this.productRepository.findById(productId).orElse(null);
 
             if (productOptional != null) {
                 Product realProduct = productOptional;
@@ -88,5 +97,5 @@ public class CartServiceImpl implements CartService {
             }
         }
     }
-    
+
 }

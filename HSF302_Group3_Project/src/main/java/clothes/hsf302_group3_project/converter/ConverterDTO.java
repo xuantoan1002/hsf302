@@ -3,16 +3,21 @@ package clothes.hsf302_group3_project.converter;
 import clothes.hsf302_group3_project.dto.ProductDTO;
 import clothes.hsf302_group3_project.dto.ProductImageDTO;
 import clothes.hsf302_group3_project.dto.ProductSizeDTO;
-import clothes.hsf302_group3_project.entity.Product;
-import clothes.hsf302_group3_project.entity.ProductImage;
-import clothes.hsf302_group3_project.entity.ProductSize;
+import clothes.hsf302_group3_project.dto.response.CartDTO;
+import clothes.hsf302_group3_project.dto.response.CartItemDTO;
+import clothes.hsf302_group3_project.dto.response.UserDTO;
+import clothes.hsf302_group3_project.entity.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Component
 public class ConverterDTO {
+
+    private final DateTimeConverter dateTimeConverter;
 
     public ProductDTO convertToProductDTO(Product product) {
         ProductDTO dto = new ProductDTO();
@@ -56,10 +61,10 @@ public UserDTO convertToUserDTO(User user) {
         dto.setId(user.getId());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
-        dto.setPassword(user.getPassword());
+//        dto.setPassword(user.getPassword());
         dto.setPhone(user.getPhone());
         dto.setRole(user.getRole());
-        dto.setCreatedAt(user.getCreatedAt());
+        dto.setCreatedAt(dateTimeConverter.toString(user.getCreatedAt()));
         return dto;
     }
 

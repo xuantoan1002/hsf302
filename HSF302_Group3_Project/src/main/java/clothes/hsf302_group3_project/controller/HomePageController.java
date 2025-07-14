@@ -2,13 +2,15 @@ package clothes.hsf302_group3_project.controller;
 
 import clothes.hsf302_group3_project.dto.CategoryDTO;
 import clothes.hsf302_group3_project.dto.ProductDTO;
+import clothes.hsf302_group3_project.service.CartService;
+import clothes.hsf302_group3_project.service.CategoryService;
+import clothes.hsf302_group3_project.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,6 +23,9 @@ public class HomePageController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private CartService cartService;
 
     @GetMapping()
     public String home(
@@ -74,9 +79,9 @@ public class HomePageController {
     }
 
     @PostMapping("/add-product-to-cart/{id}")
-    public String addProductToCart(@PathVariable long id, HttpServletRequest request){
+    public String addProductToCart(@PathVariable int id, HttpServletRequest request){
         HttpSession session = request.getSession(false);
-        long productId = id;
+        int productId = id;
         String email = "tqt@gmail.com";
 //        String email = (String) session.getAttribute("email");
         this.cartService.handleAddProductToCart(email, productId, session, 1l);

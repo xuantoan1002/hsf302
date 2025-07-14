@@ -1,6 +1,7 @@
 package clothes.hsf302_group3_project.controller;
 
 import clothes.hsf302_group3_project.dto.CategoryDTO;
+import clothes.hsf302_group3_project.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryController {
 
     @Autowired
-    private  CategoryService categoryService;
+    private CategoryService categoryService;
 
 
     @GetMapping
