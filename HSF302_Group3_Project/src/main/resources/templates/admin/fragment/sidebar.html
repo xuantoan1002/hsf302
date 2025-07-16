@@ -70,8 +70,38 @@
                         <div class="collapse" id="order">
                             <ul class="nav nav-collapse">
                                 <li>
-                                    <a th:href="@{#}">
-                                        <span class="sub-item">Basic Form</span>
+                                    <a th:href="@{/admin/orders(status=${'PAID'})}">
+                                        <span class="sub-item">Paid order</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a th:href="@{/admin/orders(status=${'CONFIRMED'})}">
+                                        <span class="sub-item">Confirmed order</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a th:href="@{/admin/orders(status=${'SHIPPING'})}">
+                                        <span class="sub-item">Shipping order</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a th:href="@{/admin/orders(status=${'DELIVERED'})}">
+                                        <span class="sub-item">Delivered order</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a th:href="@{/admin/orders(status=${'COMPLETED'})}">
+                                        <span class="sub-item">Completed order</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a th:href="@{/admin/orders(status=${'CANCELLED'})}">
+                                        <span class="sub-item">Cancelled order</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a th:href="@{/admin/orders(status=${'DELIVERY_FAILED'})}">
+                                        <span class="sub-item">Delivery failed order</span>
                                     </a>
                                 </li>
                             </ul>

@@ -10,14 +10,15 @@ import java.util.List;
 @Getter
 @Setter
 public class ProductDTO {
-    private Long id;
+    private Integer id;
     private String name;
     private String description;
-    private Double price;
-    private Integer stock;
-    private Long categoryId;
+    private double price;
+    private int stock;
+    private Integer categoryId;
     private String status;
     private LocalDateTime createdAt;
     private List<ProductImageDTO> images;
+    private List<ProductSizeDTO> sizes;
 
 }

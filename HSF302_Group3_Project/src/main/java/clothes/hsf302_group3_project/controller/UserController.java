@@ -1,5 +1,6 @@
 package clothes.hsf302_group3_project.controller;
 
+import clothes.hsf302_group3_project.dto.request.ChangePasswordRequest;
 import clothes.hsf302_group3_project.dto.request.GetUserRequest;
 import clothes.hsf302_group3_project.dto.response.UserDTO;
 import clothes.hsf302_group3_project.service.UserService;
@@ -8,10 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -76,5 +75,20 @@ public class UserController {
         userService.makeUserToShipper(email);
         return new ModelAndView("redirect:/admin/shippers");
     }
+
+    @GetMapping("/change-password")
+    public ModelAndView getChangePasswordPage() {
+        return new ModelAndView("/user/user/change-password").addObject("changePasswordRequest", new ChangePasswordRequest());
+    }
+
+    @PostMapping("/change-password")
+    public ModelAndView changePassword(@Valid @ModelAttribute ChangePasswordRequest changePasswordRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return new ModelAndView("/user/user/change-password");
+        }
+        userService.changePassword(changePasswordRequest);
+        return new ModelAndView("redirect:/");
+    }
+
 
 }

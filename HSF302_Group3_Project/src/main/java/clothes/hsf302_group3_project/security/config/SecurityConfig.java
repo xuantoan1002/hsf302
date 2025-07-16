@@ -75,4 +75,10 @@ public class SecurityConfig {
         return authBuilder.build();
     }
 
+        public static void main(String[] args) {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String rawPassword = "11111111";
+            String encodedPassword = encoder.encode(rawPassword);
+            System.out.println(encodedPassword);
+        }
 }

@@ -1,13 +1,9 @@
 package clothes.hsf302_group3_project.converter;
 
-import clothes.hsf302_group3_project.dto.ProductDTO;
-import clothes.hsf302_group3_project.dto.ProductImageDTO;
-import clothes.hsf302_group3_project.dto.ProductSizeDTO;
-import clothes.hsf302_group3_project.dto.response.CartDTO;
-import clothes.hsf302_group3_project.dto.response.CartItemDTO;
-import clothes.hsf302_group3_project.dto.response.UserDTO;
+import clothes.hsf302_group3_project.dto.response.*;
 import clothes.hsf302_group3_project.entity.*;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,9 +13,13 @@ import java.util.stream.Collectors;
 @Component
 public class ConverterDTO {
 
+    private final ModelMapper modelMapper;
     private final DateTimeConverter dateTimeConverter;
 
     public ProductDTO convertToProductDTO(Product product) {
+        if (product == null) {
+            return null;
+        }
         ProductDTO dto = new ProductDTO();
         dto.setId(product.getId());
         dto.setName(product.getName());
@@ -41,6 +41,7 @@ public class ConverterDTO {
     }
 
     public ProductImageDTO convertToProductImageDTO(ProductImage image) {
+        if (image == null) return null;
         ProductImageDTO dto = new ProductImageDTO();
         dto.setId(image.getId());
         dto.setImageUrl(image.getImageUrl());
@@ -49,6 +50,9 @@ public class ConverterDTO {
     }
 
     public ProductSizeDTO convertToProductSizeDTO(ProductSize productSize) {
+        if (productSize == null) {
+            return null;
+        }
         ProductSizeDTO dto = new ProductSizeDTO();
         dto.setId(productSize.getId());
         dto.setSize(productSize.getSize());
@@ -56,12 +60,14 @@ public class ConverterDTO {
         return dto;
     }
 
-public UserDTO convertToUserDTO(User user) {
+    public UserDTO convertToUserDTO(User user) {
+        if (user == null) {
+            return null;
+        }
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
-//        dto.setPassword(user.getPassword());
         dto.setPhone(user.getPhone());
         dto.setRole(user.getRole());
         dto.setCreatedAt(dateTimeConverter.toString(user.getCreatedAt()));
@@ -69,6 +75,9 @@ public UserDTO convertToUserDTO(User user) {
     }
 
     public CartDTO convertToCartDTO(Cart cart) {
+        if (cart == null) {
+            return null;
+        }
         CartDTO dto = new CartDTO();
         dto.setId(cart.getId());
         dto.setSum(cart.getSum());
@@ -77,6 +86,9 @@ public UserDTO convertToUserDTO(User user) {
     }
 
     public CartItemDTO convertToCartItemDTO(CartItem cartItem) {
+        if (cartItem == null) {
+            return null;
+        }
         CartItemDTO dto = new CartItemDTO();
         dto.setId(cartItem.getId());
         dto.setCart(convertToCartDTO(cartItem.getCart()));
@@ -85,5 +97,17 @@ public UserDTO convertToUserDTO(User user) {
         dto.setProduct(convertToProductDTO(cartItem.getProduct()));
         return dto;
     }
-    
+
+    public OrderDTO convertToOrderDTO(Order order) {
+        if (order == null) {
+            return null;
+        }
+        OrderDTO dto = new OrderDTO();
+        modelMapper.map(order, dto);
+        dto.setCreatedAt(dateTimeConverter.toString(order.getCreatedAt()));
+        dto.setCustomer(convertToUserDTO(order.getCustomer()));
+        dto.setShipper(convertToUserDTO(order.getShipper()));
+        return dto;
+    }
+
 }

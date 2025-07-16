@@ -11,11 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-
 public class CategoryDTO {
-    private Long id;
+    private Integer id;
     private String name;
     private List<ProductDTO> products;
-    private Integer productCount;
+    private int productCount;
 
 }

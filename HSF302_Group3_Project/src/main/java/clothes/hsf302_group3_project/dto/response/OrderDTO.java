@@ -16,8 +16,7 @@ public class OrderDTO {
     private Long id;
     private Double total;
     private String status;
-    private LocalDateTime createdAt;
+    private String createdAt;
     private UserDTO customer;
     private UserDTO shipper;
-    private List<OrderItemDTO> orderItems;
 }

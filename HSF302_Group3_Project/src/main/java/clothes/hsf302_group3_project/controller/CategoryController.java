@@ -1,6 +1,6 @@
 package clothes.hsf302_group3_project.controller;
 
-import clothes.hsf302_group3_project.dto.CategoryDTO;
+import clothes.hsf302_group3_project.dto.response.CategoryDTO;
 import clothes.hsf302_group3_project.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

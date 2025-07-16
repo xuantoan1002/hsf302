@@ -1,6 +1,7 @@
 package clothes.hsf302_group3_project.service.Impl;
 
 import clothes.hsf302_group3_project.converter.ConverterDTO;
+import clothes.hsf302_group3_project.dto.request.ChangePasswordRequest;
 import clothes.hsf302_group3_project.dto.request.GetUserRequest;
 import clothes.hsf302_group3_project.dto.response.UserDTO;
 import clothes.hsf302_group3_project.entity.User;
@@ -8,6 +9,7 @@ import clothes.hsf302_group3_project.exception.BusinessException;
 import clothes.hsf302_group3_project.exception.ResourceAlreadyExistsException;
 import clothes.hsf302_group3_project.exception.ResourceNotFoundException;
 import clothes.hsf302_group3_project.repository.UserRepository;
+import clothes.hsf302_group3_project.security.utils.SecurityUtil;
 import clothes.hsf302_group3_project.service.EmailService;
 import clothes.hsf302_group3_project.service.UserService;
 import clothes.hsf302_group3_project.utils.RandomStringUtil;
@@ -162,6 +164,24 @@ public class UserServiceImpl implements UserService {
         thisUser.setToShipperAt(LocalDateTime.now());
         userRepository.save(thisUser);
 
+    }
+
+    @Transactional
+    @Override
+    public void changePassword(ChangePasswordRequest changePasswordRequest) {
+        String email = SecurityUtil.getCurrentUserEmail();
+        User currentUser = userRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("User not found!")
+        );
+        String currentPassword = currentUser.getPassword();
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), currentPassword)) {
+            throw new BusinessException("Old password does not match!");
+        }
+        if (!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmNewPassword())) {
+            throw new BusinessException("Confirm password does not match!");
+        }
+        currentUser.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        userRepository.save(currentUser);
     }
 
 }

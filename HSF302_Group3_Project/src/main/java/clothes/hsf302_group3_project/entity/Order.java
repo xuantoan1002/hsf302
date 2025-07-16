@@ -1,5 +1,6 @@
 package clothes.hsf302_group3_project.entity;
 
+import clothes.hsf302_group3_project.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,8 +24,9 @@ public class Order {
     @Column(name = "total")
     private Double total;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private OrderStatus status;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -40,4 +42,6 @@ public class Order {
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems;
 
+    @OneToMany(mappedBy = "order")
+    private List<OrderStatusHistory> orderStatusHistory;
 }

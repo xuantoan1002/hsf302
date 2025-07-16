@@ -45,8 +45,11 @@
 
                         <!-- Password -->
                         <div class="col-md-12 form-group">
-                            <input type="password" class="form-control" th:field="*{password}" placeholder="Password"
+                            <input type="password" id="password" class="form-control" th:field="*{password}" placeholder="Password"
                                    onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'">
+                            <span class="toggle-password" toggle="#password">
+                                <i class="fa fa-eye"></i>
+                            </span>
                             <p class="form-text text-danger small mt-1 mb-0 text-left"
                                th:if="${!#fields.hasErrors('email') and #fields.hasErrors('password')}">
                                 <i class="fa fa-exclamation-circle mr-1"></i>
@@ -56,9 +59,12 @@
 
                         <!-- Confirm Password -->
                         <div class="col-md-12 form-group">
-                            <input type="password" class="form-control" th:field="*{confirmPassword}"
+                            <input type="password" id="confirmPassword" class="form-control" th:field="*{confirmPassword}"
                                    placeholder="Confirm Password"
                                    onfocus="this.placeholder = ''" onblur="this.placeholder = 'Confirm Password'">
+                            <span class="toggle-password" toggle="#confirmPassword">
+                                <i class="fa fa-eye"></i>
+                            </span>
                             <p class="form-text text-danger small mt-1 mb-0 text-left"
                                th:if="${!#fields.hasErrors('email') and !#fields.hasErrors('password') and #fields.hasErrors('confirmPassword')}">
                                 <i class="fa fa-exclamation-circle mr-1"></i>
@@ -100,7 +106,18 @@
 </section>
 
 <div th:replace="/user/fragment/footer :: footer"></div>
-
+<script>
+    document.querySelectorAll(".toggle-password").forEach(function (el) {
+        el.addEventListener("click", function () {
+            const input = document.querySelector(this.getAttribute("toggle"));
+            const icon = this.querySelector("i");
+            const type = input.getAttribute("type") === "password" ? "text" : "password";
+            input.setAttribute("type", type);
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
+        });
+    });
+</script>
 <script th:src="@{/user/js/vendor/jquery-2.2.4.min.js}"></script>
 <script th:src="@{/user/js/vendor/bootstrap.min.js}"></script>
 <script th:src="@{/user/js/jquery.ajaxchimp.min.js}"></script>

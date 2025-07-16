@@ -50,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
                 .isVerified(false)
                 .createdAt(LocalDateTime.now())
                 .role("CUSTOMER")
+                .mustChangePassword(false)
                 .build();
 
         userRepository.save(user);
@@ -119,5 +120,19 @@ public class AuthServiceImpl implements AuthService {
         tokenRepository.save(vt);
 
         emailService.sendSimpleEmail(thisUser.getEmail(), "Verify your account", "Your code is: " + token);
+    }
+
+    @Transactional
+    @Override
+    public void resetPassword(String email) {
+        User thisUser = userRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("Email not found!")
+        );
+        String newPassword = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        thisUser.setPassword(encodedPassword);
+        thisUser.setMustChangePassword(true);
+        userRepository.save(thisUser);
+        emailService.sendSimpleEmail(thisUser.getEmail(), "Reset your password", "Your new password is: " + newPassword);
     }
 }

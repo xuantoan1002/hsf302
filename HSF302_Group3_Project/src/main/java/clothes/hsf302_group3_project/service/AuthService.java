@@ -10,4 +10,6 @@ public interface AuthService {
     void verifyAccount(VerifyAccountRequest verifyAccountRequest);
 
     void resendCode(String email);
+
+    void resetPassword(String email);
 }

@@ -1,7 +1,7 @@
 package clothes.hsf302_group3_project.service.Impl;
 
 import clothes.hsf302_group3_project.converter.ConverterDTO;
-import clothes.hsf302_group3_project.dto.ProductSizeDTO;
+import clothes.hsf302_group3_project.dto.response.ProductSizeDTO;
 import clothes.hsf302_group3_project.entity.Product;
 import clothes.hsf302_group3_project.entity.ProductSize;
 import clothes.hsf302_group3_project.exception.ResourceNotFoundException;

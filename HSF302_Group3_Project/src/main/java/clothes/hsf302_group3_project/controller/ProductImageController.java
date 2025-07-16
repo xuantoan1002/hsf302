@@ -1,6 +1,6 @@
 package clothes.hsf302_group3_project.controller;
 
-import clothes.hsf302_group3_project.dto.ProductImageDTO;
+import clothes.hsf302_group3_project.dto.response.ProductImageDTO;
 import clothes.hsf302_group3_project.service.ProductImageService;
 import clothes.hsf302_group3_project.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;

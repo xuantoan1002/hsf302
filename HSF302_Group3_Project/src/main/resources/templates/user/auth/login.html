@@ -67,8 +67,11 @@
                         </div>
 
                         <div class="col-md-12 form-group">
-                            <input type="password" class="form-control" name="password" placeholder="Password"
+                            <input type="password" id="password" class="form-control" name="password" placeholder="Password"
                                    required onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'">
+                            <span class="toggle-password" toggle="#password">
+                                <i class="fa fa-eye"></i>
+                            </span>
                         </div>
 
                         <div class="col-md-12 form-group">
@@ -92,7 +95,18 @@
 
 <!-- Footer -->
 <div th:replace="/user/fragment/footer :: footer"></div>
-
+<script>
+    document.querySelectorAll(".toggle-password").forEach(function (el) {
+        el.addEventListener("click", function () {
+            const input = document.querySelector(this.getAttribute("toggle"));
+            const icon = this.querySelector("i");
+            const type = input.getAttribute("type") === "password" ? "text" : "password";
+            input.setAttribute("type", type);
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
+        });
+    });
+</script>
 <!-- JS Scripts -->
 <script th:src="@{/user/js/vendor/jquery-2.2.4.min.js}"></script>
 <script th:src="@{/user/js/vendor/bootstrap.min.js}"></script>

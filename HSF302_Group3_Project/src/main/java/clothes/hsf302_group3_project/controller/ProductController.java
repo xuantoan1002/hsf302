@@ -1,6 +1,6 @@
 package clothes.hsf302_group3_project.controller;
 
-import clothes.hsf302_group3_project.dto.ProductDTO;
+import clothes.hsf302_group3_project.dto.response.ProductDTO;
 import clothes.hsf302_group3_project.service.CategoryService;
 import clothes.hsf302_group3_project.service.ProductImageService;
 import clothes.hsf302_group3_project.service.ProductService;

@@ -10,6 +10,16 @@
 .no-padding {
   padding: 0; }
 
+.toggle-password {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 10;
+  color: #aaa;
+}
+
 .section_gap {
   padding: 100px 0; }
   @media (max-width: 991px) {

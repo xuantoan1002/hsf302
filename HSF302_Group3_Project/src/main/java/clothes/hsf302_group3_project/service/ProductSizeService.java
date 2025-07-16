@@ -1,6 +1,6 @@
 package clothes.hsf302_group3_project.service;
 
-import clothes.hsf302_group3_project.dto.ProductSizeDTO;
+import clothes.hsf302_group3_project.dto.response.ProductSizeDTO;
 
 import java.util.List;
 

@@ -59,6 +59,7 @@ public class AuthController {
         authService.resendCode(email);
         return new ModelAndView("redirect:/verify-account?email=" + email);
     }
+
     @PostMapping("/verify-account")
     public ModelAndView verifyAccount(@Valid @ModelAttribute VerifyAccountRequest verifyRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -68,9 +69,9 @@ public class AuthController {
         return new ModelAndView("redirect:/login");
     }
 
-    @GetMapping("/admin")
-    public ModelAndView getAdminPage() {
-        return new ModelAndView("/admin/admin");
+    @PostMapping("/forgot-password")
+    public ModelAndView resetPassword(@RequestParam(value = "email", required = false) String email) {
+        authService.resetPassword(email);
+        return new ModelAndView("redirect:/login");
     }
-
 }
