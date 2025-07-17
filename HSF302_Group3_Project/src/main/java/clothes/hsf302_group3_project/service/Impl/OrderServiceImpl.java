@@ -3,13 +3,11 @@ package clothes.hsf302_group3_project.service.Impl;
 import clothes.hsf302_group3_project.converter.ConverterDTO;
 import clothes.hsf302_group3_project.dto.request.GetOrderRequest;
 import clothes.hsf302_group3_project.dto.response.OrderDTO;
+import clothes.hsf302_group3_project.dto.response.OrderItemDTO;
 import clothes.hsf302_group3_project.entity.*;
 import clothes.hsf302_group3_project.enums.OrderStatus;
 import clothes.hsf302_group3_project.exception.BusinessException;
-import clothes.hsf302_group3_project.repository.CartItemRepository;
-import clothes.hsf302_group3_project.repository.CartRepository;
-import clothes.hsf302_group3_project.repository.OrderItemRepository;
-import clothes.hsf302_group3_project.repository.OrderRepository;
+import clothes.hsf302_group3_project.repository.*;
 import clothes.hsf302_group3_project.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -20,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final CartItemRepository cartItemRepository;
     private final ConverterDTO converterDTO;
+    private final OrderStatusHistoryRepository orderStatusHistoryRepository;
 
     @Transactional
     public void handlePlaceOrder(
@@ -49,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
                 Order order = new Order();
                 order.setCustomer(user);
 
-                order.setStatus(OrderStatus.PAID);
+                order.setStatus(OrderStatus.PENDING);
 
                 double sum = 0;
                 for (CartItem ct : cartItems) {
@@ -87,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderDTO> getOrders(GetOrderRequest request, Pageable pageable) {
         String shipperName = request.getShipperName();
         String customerName = request.getCustomerName();
-        OrderStatus status = (request.getStatus() == null || request.getStatus().isBlank()) ? OrderStatus.PAID : OrderStatus.valueOf(request.getStatus());
+        OrderStatus status = (request.getStatus() == null || request.getStatus().isBlank()) ? OrderStatus.PENDING : OrderStatus.valueOf(request.getStatus());
         String sortOrder = (request.getSortOrder() == null || request.getSortOrder().isBlank()) ? "DESC" : request.getSortOrder();
         String sortField = (request.getSortField() == null || request.getSortField().isBlank()) ? "createdAt" : request.getSortField();
         Double totalFrom, totalTo;
@@ -101,12 +101,80 @@ public class OrderServiceImpl implements OrderService {
         Sort.Direction direction = Sort.Direction.fromString(sortOrder);
         pageable = PageRequest.of(pageable.getPageNumber(), 10, Sort.by(direction, sortField));
         Page<Order> orders;
-        if (OrderStatus.PAID.equals(status) || OrderStatus.CANCELLED.equals(status) || OrderStatus.CONFIRMED.equals(status)) {
+        if (OrderStatus.PENDING.equals(status) || OrderStatus.CANCELLED.equals(status) || OrderStatus.CONFIRMED.equals(status)) {
             orders = orderRepository.findNoneShipperOrders(customerName, status, totalFrom, totalTo, pageable);
         } else {
             orders = orderRepository.findOrders(shipperName, customerName, status, totalFrom, totalTo, pageable);
         }
         return orders.map(converterDTO::convertToOrderDTO);
+    }
+
+    @Override
+    public OrderDTO getOrder(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new BusinessException("Order not found!")
+        );
+        return converterDTO.convertToOrderDTO(order);
+    }
+
+    @Override
+    public void confirmOrder(Long id) {
+        Order thisOrder = orderRepository.findById(id).orElseThrow(
+                () -> new BusinessException("Order not found!")
+        );
+        if (!thisOrder.getStatus().equals(OrderStatus.PENDING)) {
+            throw new BusinessException("Order status must be PENDING to Confirm!");
+        }
+        thisOrder.setStatus(OrderStatus.CONFIRMED);
+        orderRepository.save(thisOrder);
+
+        OrderStatusHistory orderStatusHistory = OrderStatusHistory.builder()
+                .order(thisOrder)
+                .status(OrderStatus.CONFIRMED)
+                .changedAt(LocalDateTime.now())
+                .build();
+
+        orderStatusHistoryRepository.save(orderStatusHistory);
+    }
+
+    @Override
+    public void cancelOrder(Long id) {
+        Order thisOrder = orderRepository.findById(id).orElseThrow(
+                () -> new BusinessException("Order not found!")
+        );
+        if (!thisOrder.getStatus().equals(OrderStatus.PENDING) && !thisOrder.getStatus().equals(OrderStatus.CONFIRMED)) {
+            throw new BusinessException("Order status must be PENDING or CONFIRMED to Cancel!");
+        }
+        thisOrder.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(thisOrder);
+
+        OrderStatusHistory orderStatusHistory = OrderStatusHistory.builder()
+                .order(thisOrder)
+                .status(OrderStatus.CANCELLED)
+                .changedAt(LocalDateTime.now())
+                .build();
+
+        orderStatusHistoryRepository.save(orderStatusHistory);
+    }
+
+    @Override
+    public void startShipperOrder(Long id) {
+        Order thisOrder = orderRepository.findById(id).orElseThrow(
+                () -> new BusinessException("Order not found!")
+        );
+        if (!thisOrder.getStatus().equals(OrderStatus.CONFIRMED)) {
+            throw new BusinessException("Order status must be CONFIRMED to start shipping!");
+        }
+        thisOrder.setStatus(OrderStatus.SHIPPING);
+        orderRepository.save(thisOrder);
+
+        OrderStatusHistory orderStatusHistory = OrderStatusHistory.builder()
+                .order(thisOrder)
+                .status(OrderStatus.SHIPPING)
+                .changedAt(LocalDateTime.now())
+                .build();
+
+        orderStatusHistoryRepository.save(orderStatusHistory);
     }
 
 }

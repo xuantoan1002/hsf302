@@ -1,20 +1,24 @@
 package clothes.hsf302_group3_project.controller;
 
 import clothes.hsf302_group3_project.dto.request.GetOrderRequest;
+import clothes.hsf302_group3_project.dto.request.GetUserRequest;
 import clothes.hsf302_group3_project.dto.response.OrderDTO;
 import clothes.hsf302_group3_project.entity.User;
+import clothes.hsf302_group3_project.enums.OrderStatus;
 import clothes.hsf302_group3_project.repository.UserRepository;
+import clothes.hsf302_group3_project.service.OrderItemService;
 import clothes.hsf302_group3_project.service.OrderService;
+import clothes.hsf302_group3_project.service.UserService;
+import jakarta.persistence.criteria.Order;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -24,6 +28,8 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OrderItemService orderItemService;
+    private final UserService userService;
     private final UserRepository userRepository;
 
     @GetMapping("/place-order")
@@ -51,5 +57,36 @@ public class OrderController {
         mav.addObject("hasNext", orders.hasNext());
         return mav;
     }
+
+    @GetMapping("/admin/orders/{id}")
+    public ModelAndView getOrder(@PathVariable Long id, @Valid @ModelAttribute GetUserRequest getUserRequest, Pageable pageable) {
+        ModelAndView mav = new ModelAndView("/admin/order-detail");
+        OrderDTO order = orderService.getOrder(id);
+        mav.addObject("order", order);
+        mav.addObject("orderItems", orderItemService.getOrderItemsByOrderId(id));
+        if (order.getStatus().equals(OrderStatus.CONFIRMED.toString())) {
+            mav.addObject("shippers", userService.getAvailableShippers(getUserRequest, pageable));
+        }
+        return mav;
+    }
+
+    @PostMapping("/admin/orders/{id}/confirm")
+    public String confirmOrder(@PathVariable Long id) {
+        orderService.confirmOrder(id);
+        return "redirect:/admin/orders/" + id;
+    }
+
+    @PostMapping("/admin/orders/{id}/cancel")
+    public String cancelOrder(@PathVariable Long id) {
+        orderService.cancelOrder(id);
+        return "redirect:/admin/orders/" + id;
+    }
+
+    @PostMapping("/admin/orders/{id}/start-shipping")
+    public String startShippingOrder(@PathVariable Long id) {
+        orderService.startShipperOrder(id);
+        return "redirect:/admin/orders/" + id;
+    }
+
 
 }

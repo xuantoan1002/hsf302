@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,12 +65,7 @@ public class ConverterDTO {
         if (user == null) {
             return null;
         }
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setName(user.getName());
-        dto.setEmail(user.getEmail());
-        dto.setPhone(user.getPhone());
-        dto.setRole(user.getRole());
+        UserDTO dto = modelMapper.map(user, UserDTO.class);
         dto.setCreatedAt(dateTimeConverter.toString(user.getCreatedAt()));
         return dto;
     }
@@ -107,6 +103,16 @@ public class ConverterDTO {
         dto.setCreatedAt(dateTimeConverter.toString(order.getCreatedAt()));
         dto.setCustomer(convertToUserDTO(order.getCustomer()));
         dto.setShipper(convertToUserDTO(order.getShipper()));
+        return dto;
+    }
+
+    public OrderItemDTO convertToOrderItemDTO(OrderItem orderItem) {
+        if (orderItem == null) {
+            return null;
+        }
+        OrderItemDTO dto = modelMapper.map(orderItem, OrderItemDTO.class);
+        dto.setOrder(convertToOrderDTO(orderItem.getOrder()));
+        dto.setProduct(convertToProductDTO(orderItem.getProduct()));
         return dto;
     }
 

@@ -167,6 +167,12 @@
                                             <td th:text="${order.getTotal()}"></td>
                                             <td th:text="${order.getCreatedAt()}"></td>
                                             <td th:text="${order.getStatus()}"></td>
+                                            <td>
+                                                <a th:href="@{/admin/orders/{id}(id=${order.getId()})}"
+                                                   class="btn btn-sm btn-info">
+                                                    View Details
+                                                </a>
+                                            </td>
                                         </tr>
                                         </tbody>
                                     </table>

@@ -8,11 +8,11 @@ import lombok.Setter;
 @Setter
 public class GetOrderRequest {
 
-    @Pattern(regexp = "PAID|CONFIRMED|SHIPPING|DELIVERED|COMPLETED|CANCELLED|DELIVERY_FAILED")
+    @Pattern(regexp = "^(PENDING|CONFIRMED|SHIPPING|DELIVERED|COMPLETED|CANCELLED|DELIVERY_FAILED)$")
     private String status;
-    @Pattern(regexp = "ASC|DESC|", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Invalid sort order!")
+    @Pattern(regexp = "^(ASC|DESC|)$", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Invalid sort order!")
     private String sortOrder;
-    @Pattern(regexp = "createdAt|total|", message = "Invalid sort field!")
+    @Pattern(regexp = "^(createdAt|total|)$", message = "Invalid sort field!")
     private String sortField;
     private String totalFrom;
     private String totalTo;

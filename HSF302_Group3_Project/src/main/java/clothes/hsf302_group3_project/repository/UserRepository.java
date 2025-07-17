@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import clothes.hsf302_group3_project.enums.OrderStatus;
 
 import java.util.Optional;
 
@@ -29,4 +30,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND (u.phone LIKE %:phone% OR :phone IS NULL) " +
             "AND u.role = 'SHIPPER'")
     Page<User> findShippers(String name, String email, String phone, Pageable pageable);
+
+    @Query("SELECT u from User u " +
+            "JOIN Order o ON o.shipper.id = u.id " +
+            "WHERE NOT EXISTS (" +
+            "            SELECT 1 FROM Order o " +
+            "            WHERE o.shipper.id = u.id AND o.status = :status " +
+            "        )" +
+            "AND (:name IS NULL OR u.name LIKE CONCAT('%', :name, '%'))" +
+            "AND (:email IS NULL OR u.email LIKE CONCAT('%', :email, '%'))" +
+            "AND (:phone IS NULL OR u.phone LIKE CONCAT('%', :phone, '%'))" +
+            "GROUP BY u")
+    Page<User> findAvailableShipper(String email, String name, String phone, OrderStatus status, Pageable pageable);
+
 }

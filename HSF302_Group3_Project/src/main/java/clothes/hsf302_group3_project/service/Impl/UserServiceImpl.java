@@ -5,6 +5,7 @@ import clothes.hsf302_group3_project.dto.request.ChangePasswordRequest;
 import clothes.hsf302_group3_project.dto.request.GetUserRequest;
 import clothes.hsf302_group3_project.dto.response.UserDTO;
 import clothes.hsf302_group3_project.entity.User;
+import clothes.hsf302_group3_project.enums.OrderStatus;
 import clothes.hsf302_group3_project.exception.BusinessException;
 import clothes.hsf302_group3_project.exception.ResourceAlreadyExistsException;
 import clothes.hsf302_group3_project.exception.ResourceNotFoundException;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -182,6 +184,16 @@ public class UserServiceImpl implements UserService {
         }
         currentUser.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(currentUser);
+    }
+
+    @Override
+    public Page<UserDTO> getAvailableShippers(GetUserRequest getUserRequest, Pageable pageable) {
+        String email = getUserRequest.getEmail();
+        String name = getUserRequest.getName();
+        String phone = getUserRequest.getPhone();
+
+        Page<User> shippers = userRepository.findAvailableShipper(name, email, phone, OrderStatus.SHIPPING, pageable);
+        return shippers.map(converterDTO::convertToUserDTO);
     }
 
 }
