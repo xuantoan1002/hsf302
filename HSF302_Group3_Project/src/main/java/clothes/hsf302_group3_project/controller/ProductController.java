@@ -1,15 +1,16 @@
 package clothes.hsf302_group3_project.controller;
 
 import clothes.hsf302_group3_project.dto.response.ProductDTO;
+import clothes.hsf302_group3_project.dto.response.ProductSizeDTO;
 import clothes.hsf302_group3_project.service.CategoryService;
-import clothes.hsf302_group3_project.service.ProductImageService;
 import clothes.hsf302_group3_project.service.ProductService;
-import clothes.hsf302_group3_project.service.ProductSizeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -17,15 +18,9 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    private ProductService productService;
+    private  ProductService productService;
     @Autowired
-    private CategoryService categoryService;
-    @Autowired
-    private  ProductSizeService productSizeService;
-    @Autowired
-    private ProductImageService productImageService;
-
-
+    private  CategoryService categoryService;
 
     @GetMapping
     public String listProducts(
@@ -51,9 +46,22 @@ public class ProductController {
 
         return "product/list";
     }
+    // ProductController.java
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("product", new ProductDTO());
+        ProductDTO productDTO = new ProductDTO();
+
+        // Initialize with 4 sizes
+        List<ProductSizeDTO> sizes = new ArrayList<>();
+        for (String sizeName : Arrays.asList("S", "M", "L", "XL")) {
+            ProductSizeDTO sizeDTO = new ProductSizeDTO();
+            sizeDTO.setSizeName(sizeName);
+            sizeDTO.setQuantity(0); // Default quantity
+            sizes.add(sizeDTO);
+        }
+        productDTO.setSizes(sizes);
+
+        model.addAttribute("product", productDTO);
         addSelectOptionsToModel(model);
         return "product/create";
     }
@@ -76,13 +84,11 @@ public class ProductController {
     public String updateProduct(@PathVariable Integer id, @ModelAttribute ProductDTO productDTO) {
         productDTO.setId(id);
         productService.updateProduct(productDTO);
-        return "redirect:/products/" + id;
+        return "redirect:/products";
     }
 
 
     private void addSelectOptionsToModel(Model model) {
         model.addAttribute("categories", categoryService.getAllCategoriesWithProductCount());
-        model.addAttribute("availableSizes", productSizeService.getAllSizesWithProductInfo());
-        model.addAttribute("availableImages", productImageService.getAllImages());
     }
 }

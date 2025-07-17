@@ -17,47 +17,59 @@ public class ConverterDTO {
     private final DateTimeConverter dateTimeConverter;
 
     public ProductDTO convertToProductDTO(Product product) {
-        if (product == null) {
-            return null;
-        }
         ProductDTO dto = new ProductDTO();
         dto.setId(product.getId());
         dto.setName(product.getName());
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrice());
         dto.setStock(product.getStock());
-        dto.setCategoryId(product.getCategory() != null ? product.getCategory().getId() : null);
         dto.setStatus(product.getStatus());
         dto.setCreatedAt(product.getCreatedAt());
+        dto.setImageUrl(product.getImageUrl());
 
-        if (product.getImages() != null) {
-            List<ProductImageDTO> imageDTOs = product.getImages().stream()
-                    .map(this::convertToProductImageDTO)
-                    .collect(Collectors.toList());
-            dto.setImages(imageDTOs);
+        if (product.getCategory() != null) {
+            dto.setCategoryId(product.getCategory().getId());
         }
 
-        return dto;
-    }
+        // Convert sizes
+        if (product.getSizes() != null) {
+            List<ProductSizeDTO> sizeDTOs = product.getSizes().stream()
+                    .map(this::convertToProductSizeDTO)
+                    .collect(Collectors.toList());
+            dto.setSizes(sizeDTOs);
+        }
 
-    public ProductImageDTO convertToProductImageDTO(ProductImage image) {
-        if (image == null) return null;
-        ProductImageDTO dto = new ProductImageDTO();
-        dto.setId(image.getId());
-        dto.setImageUrl(image.getImageUrl());
-        dto.setProductId(image.getProduct() != null ? image.getProduct().getId() : null);
         return dto;
     }
 
     public ProductSizeDTO convertToProductSizeDTO(ProductSize productSize) {
-        if (productSize == null) {
-            return null;
-        }
         ProductSizeDTO dto = new ProductSizeDTO();
         dto.setId(productSize.getId());
-        dto.setSize(productSize.getSize());
+        dto.setSizeName(productSize.getName());
         dto.setQuantity(productSize.getQuantity());
+        dto.setProductId(productSize.getProduct().getId());
         return dto;
+    }
+
+    public Product convertToProduct(ProductDTO productDTO) {
+        Product product = new Product();
+        product.setId(productDTO.getId());
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        product.setStock(productDTO.getStock());
+        product.setStatus(productDTO.getStatus());
+        product.setCreatedAt(productDTO.getCreatedAt());
+        product.setImageUrl(productDTO.getImageUrl());
+        return product;
+    }
+
+    public ProductSize convertToProductSize(ProductSizeDTO productSizeDTO) {
+        ProductSize entity = new ProductSize();
+        entity.setId(productSizeDTO.getId());
+        entity.setName(productSizeDTO.getSizeName());
+        entity.setQuantity(productSizeDTO.getQuantity());
+        return entity;
     }
 
     public UserDTO convertToUserDTO(User user) {

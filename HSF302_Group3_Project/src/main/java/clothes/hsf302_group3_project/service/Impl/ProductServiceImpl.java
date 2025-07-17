@@ -5,10 +5,8 @@ import clothes.hsf302_group3_project.dto.response.ProductDTO;
 import clothes.hsf302_group3_project.dto.response.ProductSizeDTO;
 import clothes.hsf302_group3_project.entity.Category;
 import clothes.hsf302_group3_project.entity.Product;
-import clothes.hsf302_group3_project.entity.ProductImage;
 import clothes.hsf302_group3_project.entity.ProductSize;
 import clothes.hsf302_group3_project.exception.ResourceNotFoundException;
-import clothes.hsf302_group3_project.repository.ProductImageRepository;
 import clothes.hsf302_group3_project.repository.ProductRepository;
 import clothes.hsf302_group3_project.repository.ProductSizeRepository;
 import clothes.hsf302_group3_project.service.ProductService;
@@ -33,11 +31,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ConverterDTO converterDTO;
+
     @Autowired
     private ProductSizeRepository productSizeRepository;
 
-    @Autowired
-    private ProductImageRepository productImageRepository;
+
 
     @Override
     public List<ProductDTO> getAllProducts() {
@@ -48,25 +46,31 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO getProductById(Integer id) {
-        return null;
+        Product D = productRepository.findProductById(id);
+        return converterDTO.convertToProductDTO(D);
     }
 
+    // ProductServiceImpl.java
     @Override
     @Transactional
     public ProductDTO createProduct(ProductDTO productDTO) {
-        // Validate sizes
-        productDTO.getSizes().forEach(ps -> {
-            if (!VALID_SIZES.contains(ps.getSize())) {
-                throw new IllegalArgumentException("Invalid size: " + ps.getSize());
-            }
-        });
-
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
         product.setPrice(productDTO.getPrice());
+        product.setImageUrl(productDTO.getImageUrl()); // <-- Thêm dòng này
+        // Initialize with 4 fixed sizes if not provided
+        if (productDTO.getSizes() == null || productDTO.getSizes().isEmpty()) {
+            productDTO.setSizes(new ArrayList<>());
+            for (String sizeName : VALID_SIZES) {
+                ProductSizeDTO sizeDTO = new ProductSizeDTO();
+                sizeDTO.setSizeName(sizeName);
+                sizeDTO.setQuantity(0); // Default to 0 if not specified
+                productDTO.getSizes().add(sizeDTO);
+            }
+        }
 
-        // Tính tổng số lượng từ các size
+        // Calculate total stock from sizes
         int totalStock = productDTO.getSizes().stream()
                 .mapToInt(ProductSizeDTO::getQuantity)
                 .sum();
@@ -75,7 +79,7 @@ public class ProductServiceImpl implements ProductService {
         product.setStatus(productDTO.getStatus());
         product.setCreatedAt(LocalDateTime.now());
 
-        // Set category nếu có
+        // Set category if provided
         if (productDTO.getCategoryId() != null) {
             Category category = new Category();
             category.setId(productDTO.getCategoryId());
@@ -84,25 +88,13 @@ public class ProductServiceImpl implements ProductService {
 
         Product savedProduct = productRepository.save(product);
 
-        // Lưu sizes
-        productDTO.getSizes().forEach(ps -> {
-            if (ps.getQuantity() > 0) { // Chỉ lưu size có số lượng > 0
-                ProductSize productSize = new ProductSize();
-                productSize.setProduct(savedProduct);
-                productSize.setSize(ps.getSize());
-                productSize.setQuantity(ps.getQuantity());
-                productSizeRepository.save(productSize);
-            }
-        });
-
-        // Lưu ảnh sản phẩm
-        if (productDTO.getImages() != null && !productDTO.getImages().isEmpty()) {
-            productDTO.getImages().forEach(imageDTO -> {
-                ProductImage image = new ProductImage();
-                image.setProduct(savedProduct);
-                image.setImageUrl(imageDTO.getImageUrl());
-                productImageRepository.save(image);
-            });
+        // Save all 4 sizes (even if quantity is 0)
+        for (ProductSizeDTO sizeDTO : productDTO.getSizes()) {
+            ProductSize productSize = new ProductSize();
+            productSize.setProduct(savedProduct);
+            productSize.setName(sizeDTO.getSizeName()); // Use name instead of size object
+            productSize.setQuantity(sizeDTO.getQuantity());
+            productSizeRepository.save(productSize);
         }
 
         return converterDTO.convertToProductDTO(savedProduct);

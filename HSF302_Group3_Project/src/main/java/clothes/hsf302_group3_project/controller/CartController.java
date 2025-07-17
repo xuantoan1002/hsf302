@@ -50,7 +50,7 @@ public class CartController {
             cartItemDTOs.add(converterDTO.convertToCartItemDTO(cartItem));
         }
 
-        cartDTO.setItems(cartItemDTOs); 
+        cartDTO.setItems(cartItemDTOs);
 
         double totalPrice = 0;
         for (CartItem cartItem : cartItems) {
@@ -59,7 +59,7 @@ public class CartController {
 
         model.addAttribute("totalPrice", totalPrice);
         model.addAttribute("cartItems", cartItemDTOs); // optional nếu không dùng
-        model.addAttribute("cart", cartDTO); 
+        model.addAttribute("cart", cartDTO);
 
         return "cart";
     }
