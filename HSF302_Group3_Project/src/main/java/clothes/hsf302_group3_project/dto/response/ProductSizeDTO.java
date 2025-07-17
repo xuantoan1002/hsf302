@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class ProductSizeDTO {
     private Integer id;
-    private String size; // hoặc Size enum
+    private String size;
     private Integer quantity;
     private Product product;
 }

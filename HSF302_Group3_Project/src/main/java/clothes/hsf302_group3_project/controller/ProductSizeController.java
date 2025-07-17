@@ -1,7 +1,7 @@
 package clothes.hsf302_group3_project.controller;
 
 import clothes.hsf302_group3_project.dto.response.ProductSizeDTO;
-import clothes.hsf302_group3_project.entity.Size;
+import clothes.hsf302_group3_project.enums.Size;
 import clothes.hsf302_group3_project.service.ProductService;
 import clothes.hsf302_group3_project.service.ProductSizeService;
 import org.springframework.stereotype.Controller;
