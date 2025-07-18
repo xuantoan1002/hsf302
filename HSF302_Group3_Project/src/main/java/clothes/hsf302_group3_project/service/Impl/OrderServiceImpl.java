@@ -6,12 +6,8 @@ import clothes.hsf302_group3_project.dto.response.OrderDTO;
 import clothes.hsf302_group3_project.entity.*;
 import clothes.hsf302_group3_project.enums.OrderStatus;
 import clothes.hsf302_group3_project.exception.BusinessException;
-import clothes.hsf302_group3_project.repository.CartItemRepository;
-import clothes.hsf302_group3_project.repository.CartRepository;
-import clothes.hsf302_group3_project.repository.OrderItemRepository;
-import clothes.hsf302_group3_project.repository.OrderRepository;
+import clothes.hsf302_group3_project.repository.*;
 import clothes.hsf302_group3_project.service.OrderService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,11 +18,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static clothes.hsf302_group3_project.security.utils.SecurityUtil.getCurrentUserEmail;
 
 @RequiredArgsConstructor
 @Service
 public class OrderServiceImpl implements OrderService {
 
+    private final UserRepository userRepository;
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -34,9 +34,9 @@ public class OrderServiceImpl implements OrderService {
     private final ConverterDTO converterDTO;
 
     @Transactional
-    public void handlePlaceOrder(
-            User user, HttpSession session, List<Long> cartItemIds) {
-
+    public void handlePlaceOrder(List<Long> cartItemIds) {
+        String email = getCurrentUserEmail();
+        User user = this.userRepository.findByEmail(email).get();
         Cart cart = this.cartRepository.findByUser(user);
         if (cart != null) {
             List<CartItem> cartItems = new ArrayList<>();
@@ -48,7 +48,6 @@ public class OrderServiceImpl implements OrderService {
                 //create order
                 Order order = new Order();
                 order.setCustomer(user);
-
                 order.setStatus(OrderStatus.PAID);
 
                 double sum = 0;
@@ -83,6 +82,25 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+
+    @Override
+    public boolean markOrderAsCompleted(Long id) {
+        Optional<Order> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isEmpty()) {
+            return false;
+        }
+
+        Order order = orderOpt.get();
+        if (order.getStatus() == OrderStatus.COMPLETED) {
+            return false;
+        }
+
+        order.setStatus(OrderStatus.COMPLETED);
+        orderRepository.save(order);
+        return true;
+    }
+
+
     @Override
     public Page<OrderDTO> getOrders(GetOrderRequest request, Pageable pageable) {
         String shipperName = request.getShipperName();
@@ -107,6 +125,17 @@ public class OrderServiceImpl implements OrderService {
             orders = orderRepository.findOrders(shipperName, customerName, status, totalFrom, totalTo, pageable);
         }
         return orders.map(converterDTO::convertToOrderDTO);
+    }
+
+    @Override
+    public List<OrderDTO> getOrders(){
+        User user = userRepository.findByEmail(getCurrentUserEmail()).get();
+        List<Order> orders = user.getPlacedOrders();
+        List<OrderDTO> orderDTOs = new ArrayList<>();
+        for (Order order : orders) {
+            orderDTOs.add(converterDTO.convertToOrderDTO(order));
+        }
+        return orderDTOs;
     }
 
 }

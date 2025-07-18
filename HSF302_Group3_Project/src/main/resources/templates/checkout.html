@@ -148,13 +148,13 @@
 
             <!-- thông tin người nhận -->
             <label>Tên người nhận</label>
-            <input type="text" name="recipientName" class="form-control" required />
+            <input type="text" name="recipientName" class="form-control" th:value="${name}" readonly />
 
             <label>Địa chỉ người nhận</label>
-            <input type="text" name="recipientAddress" class="form-control" required />
+            <input type="text" name="recipientAddress" class="form-control" th:value="${address}" readonly />
 
             <label>Số điện thoại</label>
-            <input type="text" name="recipientPhone" class="form-control" required />
+            <input type="text" name="recipientPhone" class="form-control" required th:value="${phone}" readonly/>
 
             <!-- Thông tin thanh toán -->
             <hr>
@@ -181,3 +181,4 @@
 <div th:replace="user/fragment/footer :: footer"></div>
 </body>
 </html>
+

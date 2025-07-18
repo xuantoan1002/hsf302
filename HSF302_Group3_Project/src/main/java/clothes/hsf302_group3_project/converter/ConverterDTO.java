@@ -92,6 +92,7 @@ public class ConverterDTO {
         CartItemDTO dto = new CartItemDTO();
         dto.setId(cartItem.getId());
         dto.setCart(convertToCartDTO(cartItem.getCart()));
+//        dto.setSize(cartItem.getSize());
         dto.setQuantity(cartItem.getQuantity());
         dto.setPrice(cartItem.getPrice());
         dto.setProduct(convertToProductDTO(cartItem.getProduct()));
@@ -110,4 +111,13 @@ public class ConverterDTO {
         return dto;
     }
 
+    public OrderItemDTO toOrderItemDTO(OrderItem oi) {
+        OrderItemDTO oiDTO = new OrderItemDTO();
+        modelMapper.map(oi, oiDTO);
+        oiDTO.setId(oi.getId());
+        oiDTO.setQuantity(oi.getQuantity());
+        oiDTO.setPrice(oi.getPrice());
+        oiDTO.setProduct(convertToProductDTO(oi.getProduct()));
+        return oiDTO;
+    }
 }

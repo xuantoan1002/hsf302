@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.util.ArrayList;
 import java.util.List;
 
+import static clothes.hsf302_group3_project.security.utils.SecurityUtil.getCurrentUserEmail;
+
 @Controller
 public class CartController {
 
@@ -37,9 +39,8 @@ public class CartController {
 
     @GetMapping("/cart")
     public String cart(Model model, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        // Lấy user từ session (tạm hardcode user id = 1L)
-        User user = userRepository.findById(1L).get();
+        String email = getCurrentUserEmail();
+        User user = userRepository.findByEmail(email).get();
         Cart cart = cartRepository.findByUser(user);
 
         CartDTO cartDTO = cart == null ? new CartDTO() : converterDTO.convertToCartDTO(cart);
@@ -65,10 +66,9 @@ public class CartController {
     }
 
     @PostMapping("/delete-cart-product/{id}")
-    public String deleteCartDetail(@PathVariable long id, HttpServletRequest request){
-        HttpSession session = request.getSession(false);
+    public String deleteCartDetail(@PathVariable long id){
         long cartItemId = id;
-        this.cartService.handleRemoveCartItem(cartItemId, session);
+        this.cartService.handleRemoveCartItem(cartItemId);
         return "redirect:/cart";
     }
 
