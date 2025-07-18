@@ -198,5 +198,39 @@ public class ProductServiceImpl implements ProductService {
         return converterDTO.convertToProductDTO(product);
     }
 
+    @Transactional
+    public void decreaseProductSizeQuantity(Integer productId, String sizeName) {
+        ProductSize productSize = productSizeRepository
+                .findByProductIdAndName(productId, sizeName)
+                .orElseThrow(() -> new ResourceNotFoundException("Product size not found"));
+        if (productSize.getQuantity() <= 0) {
+            throw new IllegalStateException("Sản phẩm size " + sizeName + " đã hết hàng.");
+        }
+        productSize.setQuantity(productSize.getQuantity() - 1);
+        productSizeRepository.save(productSize);
+        Product product = productSize.getProduct();
+        int updatedStock = 0;
+        for (ProductSize size : product.getSizes()) {
+            updatedStock += size.getQuantity();
+        }
+        product.setStock(updatedStock);
+        productRepository.save(product);
+    }
+
+    @Transactional
+    public void increaseProductSizeQuantity(Integer productId, String sizeName) {
+        ProductSize productSize = productSizeRepository
+                .findByProductIdAndName(productId, sizeName)
+                .orElseThrow(() -> new ResourceNotFoundException("Product size not found"));
+        productSize.setQuantity(productSize.getQuantity() + 1);
+        productSizeRepository.save(productSize);
+        Product product = productSize.getProduct();
+        int updatedStock = 0;
+        for (ProductSize size : product.getSizes()) {
+            updatedStock += size.getQuantity();
+        }
+        product.setStock(updatedStock);
+        productRepository.save(product);
+    }
 
 }
