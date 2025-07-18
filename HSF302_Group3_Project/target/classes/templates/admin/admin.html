@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Kaiadmin - Bootstrap 5 Admin Dashboard</title>
+    <meta
+            content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+            name="viewport"
+    />
+    <link rel="icon"
+          th:href="@{/admin/img/kaiadmin/favicon.ico}"
+          type="image/x-icon"/>
+    <!-- Fonts and icons -->
+    <script th:src="@{/admin/js/plugin/webfont/webfont.min.js}"></script>
+    <script>
+        WebFont.load({
+            google: {families: ["Public Sans:300,400,500,600,700"]},
+            custom: {
+                families: [
+                    "Font Awesome 5 Solid",
+                    "Font Awesome 5 Regular",
+                    "Font Awesome 5 Brands",
+                    "simple-line-icons",
+                ],
+                urls: ["/admin/css/fonts.min.css"],
+            },
+            active: function () {
+                sessionStorage.fonts = true;
+            },
+        });
+    </script>
+    <!-- CSS Files -->
+    <link rel="stylesheet" th:href="@{/admin/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/admin/css/plugins.min.css}"/>
+    <link rel="stylesheet" th:href="@{/admin/css/kaiadmin.min.css}"/>
+    <!-- CSS Just for demo purpose, don't include it in your project -->
+    <link rel="stylesheet" th:href="@{/admin/css/demo.css}"/>
+</head>
+<body>
+
+<div class="wrapper">
+    <div th:replace="/admin/fragment/sidebar :: sidebar"></div>
+    <div class="main-panel">
+        <div th:replace="/admin/fragment/header :: header"></div>
+
+        <div class="container">
+            <div class="page-inner">
+
+                <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+                    <div>
+                        <h3 class="fw-bold mb-3">Admin management</h3>
+                    </div>
+                    <div th:replace="/admin/fragment/add-user-modal :: addUserModal('/admin/admins/add', 'addAdminModal', 'Add Admin')"></div>
+                    <div class="ms-md-auto py-2 py-md-0">
+                        <a th:href="@{#}" class="btn btn-primary" data-bs-toggle="modal"
+                           data-bs-target="#addAdminModal">Add Admin</a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <form method="get" th:action="@{/admin/admins}" th:object="${request}" id="filterForm">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="card-title">Admin list</div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination pagination-sm mb-0 gap-2">
+                                                <!-- Previous -->
+                                                <li class="page-item" th:classappend="${!hasPrevious} ? ' disabled'">
+                                                    <button type="button" class="page-link rounded-pill px-3"
+                                                            th:disabled="${!hasPrevious}"
+                                                            th:onclick="${hasPrevious} ? 'changePage(' + ${currentPage} + ', \'prev\')' : null">
+                                                        &laquo; Prev
+                                                    </button>
+                                                </li>
+
+                                                <!-- Current page display -->
+                                                <li class="page-item active">
+                                                    <span class="page-link rounded-pill px-3"
+                                                          th:text="${currentPage + 1 + '/' + totalPages}"></span>
+                                                </li>
+
+                                                <!-- Next -->
+                                                <li class="page-item" th:classappend="${!hasNext} ? ' disabled'">
+                                                    <button type="button" class="page-link rounded-pill px-3"
+                                                            th:disabled="${!hasNext}"
+                                                            th:onclick="${hasNext} ? 'changePage(' + ${currentPage} + ', \'next\')' : null">
+                                                        Next &raquo;
+                                                    </button>
+                                                </li>
+                                            </ul>
+
+
+                                        </nav>
+                                    </div>
+                                </div>
+
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <input type="hidden" name="page" th:value="${currentPage}" id="currentPage"/>
+                                        <div class="col-md-3">
+                                            <label for="filterName" class="form-label">Name</label>
+                                            <input type="text" class="form-control" id="filterName"
+                                                   placeholder="Enter name"
+                                                   th:field="*{name}"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="filterEmail" class="form-label">Email</label>
+                                            <input type="text" class="form-control" id="filterEmail"
+                                                   placeholder="Enter email" th:field="*{email}"/>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="filterPhone" class="form-label">Phone</label>
+                                            <input type="text" class="form-control" id="filterPhone"
+                                                   placeholder="Enter phone" th:field="*{phone}"/>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="filterDate" class="form-label">Sort by Created at</label>
+                                            <select class="form-select" id="filterDate" th:field="*{sortOrder}"
+                                                    style="height: 40px"
+                                                    onchange="this.form.submit()">
+                                                <option value="DESC" th:selected="${sortOrder == 'DESC'}">Latest
+                                                </option>
+                                                <option value="ASC" th:selected="${sortOrder == 'ASC'}">Oldest</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 d-flex align-items-end">
+                                            <button class="btn btn-primary w-100">Apply Filters</button>
+                                        </div>
+                                    </div>
+
+                                    <table class="table mt-3">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">ID</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Email</th>
+                                            <th scope="col">Phone</th>
+                                            <th scope="col">Created At</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="admin : ${admins}">
+                                            <td th:text="${admin.getId()}"></td>
+                                            <td th:text="${admin.getName()}"></td>
+                                            <td th:text="${admin.getEmail()}"></td>
+                                            <td th:text="${admin.getPhone()}"></td>
+                                            <td th:text="${admin.getCreatedAt()}"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function changePage(page, choice) {
+        if (choice === "next") {
+            document.getElementById("currentPage").value = page + 1;
+        } else if (choice === "prev") {
+            document.getElementById("currentPage").value = page - 1;
+        } else {
+            return;
+        }
+        document.getElementById("filterForm").submit();
+    }
+</script>
+<!--   Core JS Files   -->
+<script th:src="@{/admin/js/core/jquery-3.7.1.min.js}"></script>
+<script th:src="@{/admin/js/core/popper.min.js}"></script>
+<script th:src="@{/admin/js/core/bootstrap.min.js}"></script>
+<!-- jQuery Scrollbar -->
+<script th:src="@{/admin/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js}"></script>
+<!-- Chart JS -->
+<script th:src="@{/admin/js/plugin/chart.js/chart.min.js}"></script>
+<!-- jQuery Sparkline -->
+<script th:src="@{/admin/js/plugin/jquery.sparkline/jquery.sparkline.min.js}"></script>
+<!-- Chart Circle -->
+<script th:src="@{/admin/js/plugin/chart-circle/circles.min.js}"></script>
+<!-- Datatables -->
+<script th:src="@{/admin/js/plugin/datatables/datatables.min.js}"></script>
+<!-- Bootstrap Notify -->
+<script th:src="@{/admin/js/plugin/bootstrap-notify/bootstrap-notify.min.js}"></script>
+<!-- jQuery Vector Maps -->
+<script th:src="@{/admin/js/plugin/jsvectormap/jsvectormap.min.js}"></script>
+<script th:src="@{/admin/js/plugin/jsvectormap/world.js}"></script>
+<!-- Sweet Alert -->
+<script th:src="@{/admin/js/plugin/sweetalert/sweetalert.min.js}"></script>
+<!-- Kaiadmin JS -->
+<script th:src="@{/admin/js/kaiadmin.min.js}"></script>
+<!-- Kaiadmin DEMO methods, don't include it in your project! -->
+<script th:src="@{/admin/js/setting-demo.js}"></script>
+<script th:src="@{/admin/js/demo.js}"></script>
+<script>
+    $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
+        type: "line",
+        height: "70",
+        width: "100%",
+        lineWidth: "2",
+        lineColor: "#177dff",
+        fillColor: "rgba(23, 125, 255, 0.14)",
+    });
+
+    $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
+        type: "line",
+        height: "70",
+        width: "100%",
+        lineWidth: "2",
+        lineColor: "#f3545d",
+        fillColor: "rgba(243, 84, 93, .14)",
+    });
+
+    $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
+        type: "line",
+        height: "70",
+        width: "100%",
+        lineWidth: "2",
+        lineColor: "#ffa534",
+        fillColor: "rgba(255, 165, 52, .14)",
+    });
+</script>
+</body>
+</html>

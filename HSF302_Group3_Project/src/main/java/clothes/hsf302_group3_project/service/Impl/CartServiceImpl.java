@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static clothes.hsf302_group3_project.security.utils.SecurityUtil.getCurrentUserEmail;
+
 @Service
 public class CartServiceImpl implements CartService {
 
@@ -30,7 +32,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void handleRemoveCartItem(long id, HttpSession session) {
+    public void handleRemoveCartItem(long id) {
         Optional<CartItem> cartItemOptional = this.cartItemRepository.findById(id);
         if (cartItemOptional.isPresent()) {
             CartItem cartItem = cartItemOptional.get();
@@ -42,19 +44,17 @@ public class CartServiceImpl implements CartService {
             int cartSum = cart.getSum();
             if (cartSum > 1) {
                 cart.setSum(cartSum - 1);
-                session.setAttribute("sum", cart.getSum());
                 this.cartRepository.save(cart);
             } else {
                 this.cartRepository.deleteById(cart.getId());
-                session.setAttribute("sum", 0);
-
             }
         }
     }
 
     @Override
-    public void handleAddProductToCart(String email, int productId, HttpSession session, long quantity) {
-        User user = this.userRepository.findById(1l).get();
+    public void handleAddProductToCart(int productId, long quantity) {
+        String email = getCurrentUserEmail();
+        User user = this.userRepository.findByEmail(email).get();
 //        User user = this.userService.getUserByEmail(email);
         if (user != null) {
             // check User da co Cart chua ? neu chua -> tao moi
@@ -84,12 +84,9 @@ public class CartServiceImpl implements CartService {
                     cd.setQuantity(quantity);
                     this.cartItemRepository.save(cd);
 
-                    // update ct(sum)
                     int s = cart.getSum() + 1;
-//                    int s = cart.getSum() / 0;
                     cart.setSum(s);
                     this.cartRepository.save(cart);
-                    session.setAttribute("sum", s);
                 } else {
                     oldDetail.setQuantity(oldDetail.getQuantity() + quantity);
                     this.cartItemRepository.save(oldDetail);

@@ -106,14 +106,13 @@ public class ConverterDTO {
         return dto;
     }
 
-    public OrderItemDTO convertToOrderItemDTO(OrderItem orderItem) {
-        if (orderItem == null) {
-            return null;
-        }
-        OrderItemDTO dto = modelMapper.map(orderItem, OrderItemDTO.class);
-        dto.setOrder(convertToOrderDTO(orderItem.getOrder()));
-        dto.setProduct(convertToProductDTO(orderItem.getProduct()));
-        return dto;
+    public OrderItemDTO toOrderItemDTO(OrderItem oi) {
+        OrderItemDTO oiDTO = new OrderItemDTO();
+        modelMapper.map(oi, oiDTO);
+        oiDTO.setId(oi.getId());
+        oiDTO.setQuantity(oi.getQuantity());
+        oiDTO.setPrice(oi.getPrice());
+        oiDTO.setProduct(convertToProductDTO(oi.getProduct()));
+        return oiDTO;
     }
-
 }

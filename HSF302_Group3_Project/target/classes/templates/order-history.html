@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử đơn hàng</title>
+    <link rel="stylesheet" href="/myapp/user/css/bootstrap.css">
+    <link rel="stylesheet" href="/myapp/user/css/main.css">
+</head>
+<body>
+<div th:replace="user/fragment/header :: header"></div>
+
+<section class="container mt-5">
+    <h2 class="mb-4">Lịch sử đơn hàng</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>Mã đơn hàng</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th>Ngày đặt</th>
+                <th>Người giao hàng</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${order.id}"></td>
+                <td th:text="${#numbers.formatDecimal(order.total, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                <!--                <td th:text="${order.status}"></td>-->
+                <td>
+                    <span th:class="'badge ' + (${order.status} == 'COMPLETED' ? 'bg-success' : (${order.status} == 'PAID' ? 'bg-warning text-dark' : 'bg-secondary'))"
+                          th:text="${order.status}">
+                    </span>
+                </td>
+
+                <td th:text="${order.createdAt}"></td>
+                <td th:text="${order.shipper != null ? order.shipper.name : 'Chưa có'}"></td>
+                <td>
+                    <a th:href="@{'/order/' + ${order.id} + '/items'}" class="btn btn-primary">Xem chi tiết</a>
+                    <button class="btn btn-warning btn-sm"
+                            th:attr="data-order-id=${order.id}, data-order-status=${order.status}"
+                            onclick="confirmCompleteOrder(this)">Cập nhật trạng thái
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<div th:replace="user/fragment/footer :: footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmCompleteOrder(button) {
+        const orderId = button.getAttribute('data-order-id');
+        const status = button.getAttribute('data-order-status');
+
+        if (status !== 'PAID') {
+            Swal.fire({
+                icon: 'info',
+                title: 'Không thể cập nhật',
+                text: 'Chỉ có thể cập nhật đơn hàng ở trạng thái "PAID".',
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Xác nhận',
+            text: 'Bạn đã nhận được đơn hàng này?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/myapp/api/orders/${orderId}/complete`, {
+                    method: 'PUT',
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Cập nhật thành công',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                location.reload(); // Reload lại để cập nhật UI
+                            });
+                        } else {
+                            response.text().then(msg => {
+                                Swal.fire('Lỗi', msg || 'Cập nhật thất bại', 'error');
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Lỗi', 'Không thể kết nối tới máy chủ', 'error');
+                    });
+            }
+        });
+    }
+</script>
+</body>
+</html>
