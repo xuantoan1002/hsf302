@@ -13,7 +13,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @Controller
 @RequestMapping("/")
 public class HomePageController {
@@ -23,9 +22,6 @@ public class HomePageController {
 
     @Autowired
     private ProductService productService;
-
-    @Autowired
-    private CartService cartService;
 
     @GetMapping()
     public String home(
@@ -65,7 +61,7 @@ public class HomePageController {
         }
 
         model.addAttribute("products", products);
-        return "HomePage";
+        return "HomePageProduct/HomePage";
     }
 
     @GetMapping("/product/{id}")
@@ -75,16 +71,6 @@ public class HomePageController {
 
         model.addAttribute("product", productDTO);
         model.addAttribute("categories", categories);
-        return "productDetail";
-    }
-
-    @PostMapping("/add-product-to-cart/{id}")
-    public String addProductToCart(@PathVariable int id, HttpServletRequest request){
-        HttpSession session = request.getSession(false);
-        int productId = id;
-        String email = "tqt@gmail.com";
-//        String email = (String) session.getAttribute("email");
-        this.cartService.handleAddProductToCart(productId, 1l);
-        return "redirect:/";
+        return "HomePageProduct/productDetail";
     }
 }

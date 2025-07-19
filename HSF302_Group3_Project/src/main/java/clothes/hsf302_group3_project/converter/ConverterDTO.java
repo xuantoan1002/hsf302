@@ -30,12 +30,18 @@ public class ConverterDTO {
         dto.setCategoryId(product.getCategory() != null ? product.getCategory().getId() : null);
         dto.setStatus(product.getStatus());
         dto.setCreatedAt(product.getCreatedAt());
+        dto.setImageUrl(product.getImageUrl());
 
-        if (product.getImages() != null) {
-            List<ProductImageDTO> imageDTOs = product.getImages().stream()
-                    .map(this::convertToProductImageDTO)
+        if (product.getCategory() != null) {
+            dto.setCategoryId(product.getCategory().getId());
+        }
+
+        // Convert sizes
+        if (product.getSizes() != null) {
+            List<ProductSizeDTO> sizeDTOs = product.getSizes().stream()
+                    .map(this::convertToProductSizeDTO)
                     .collect(Collectors.toList());
-            dto.setImages(imageDTOs);
+            dto.setSizes(sizeDTOs);
         }
 
         return dto;
@@ -69,9 +75,31 @@ public class ConverterDTO {
         }
         ProductSizeDTO dto = new ProductSizeDTO();
         dto.setId(productSize.getId());
-        dto.setSize(productSize.getSize());
+        dto.setSizeName(productSize.getName());
         dto.setQuantity(productSize.getQuantity());
+        dto.setProductId(productSize.getProduct().getId());
         return dto;
+    }
+
+    public Product convertToProduct(ProductDTO productDTO) {
+        Product product = new Product();
+        product.setId(productDTO.getId());
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        product.setStock(productDTO.getStock());
+        product.setStatus(productDTO.getStatus());
+        product.setCreatedAt(productDTO.getCreatedAt());
+        product.setImageUrl(productDTO.getImageUrl());
+        return product;
+    }
+
+    public ProductSize convertToProductSize(ProductSizeDTO productSizeDTO) {
+        ProductSize entity = new ProductSize();
+        entity.setId(productSizeDTO.getId());
+        entity.setName(productSizeDTO.getSizeName());
+        entity.setQuantity(productSizeDTO.getQuantity());
+        return entity;
     }
 
     public UserDTO convertToUserDTO(User user) {
