@@ -144,8 +144,14 @@
                                             <td th:text="${customer.getId()}"></td>
                                             <td th:text="${customer.getName()}"></td>
                                             <td th:text="${customer.getEmail()}"></td>
+                                            <td th:text="${customer.getPhone()}"></td>
                                             <td th:text="${customer.getAddress()}"></td>
-                                            <td th:text="${customer.getCreatedAt()}"></td>
+                                            <td>
+                                                <a th:href="@{/admin/customers/{id}(id=${customer.getId()})}"
+                                                   class="btn btn-sm btn-info">
+                                                    View Details
+                                                </a>
+                                            </td>
                                         </tr>
                                         </tbody>
                                     </table>

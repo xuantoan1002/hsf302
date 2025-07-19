@@ -148,8 +148,14 @@
                                             <td th:text="${shipper.getId()}"></td>
                                             <td th:text="${shipper.getName()}"></td>
                                             <td th:text="${shipper.getEmail()}"></td>
+                                            <td th:text="${shipper.getPhone()}"></td>
                                             <td th:text="${shipper.getAddress()}"></td>
-                                            <td th:text="${shipper.getToShipperAt()}"></td>
+                                            <td>
+                                                <a th:href="@{/admin/shippers/{id}(id=${shipper.getId()})}"
+                                                   class="btn btn-sm btn-info">
+                                                    View Details
+                                                </a>
+                                            </td>
                                         </tr>
                                         </tbody>
                                     </table>
@@ -158,9 +164,7 @@
                         </form>
                     </div>
                 </div>
-
             </div>
-
         </div>
     </div>
 </div>

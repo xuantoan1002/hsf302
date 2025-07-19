@@ -167,7 +167,6 @@ public class UserServiceImpl implements UserService {
         thisUser.setRole("SHIPPER");
         thisUser.setToShipperAt(LocalDateTime.now());
         userRepository.save(thisUser);
-
     }
 
     @Transactional
@@ -214,6 +213,17 @@ public class UserServiceImpl implements UserService {
                 () -> new ResourceNotFoundException("User not found!")
         );
         return converterDTO.convertToUserDTO(user);
+    }
+
+    @Transactional
+    @Override
+    public void deleteShipper(Long shipperId) {
+        User thisShipper = isAvailableShipper(shipperId);
+        if (thisShipper == null) { //vẫn còn đơn hàng đang xử lý => không được xóa role
+            throw new BusinessException("Shipper is not available!");
+        }
+        thisShipper.setRole("CUSTOMER");
+        userRepository.save(thisShipper);
     }
 
     public User isAvailableShipper(Long shipperId) {

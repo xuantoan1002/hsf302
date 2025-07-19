@@ -28,4 +28,10 @@ public interface OrderService {
     void assignShipper(Long orderId, Long shipperId);
 
     Page<OrderDTO> getOrdersByShipperId(Long shipperId, GetOrderRequest getOrderRequest, Pageable pageable);
+
+    Page<OrderDTO> getOrdersByCustomerId(Long customerId, GetOrderRequest getOrderRequest, Pageable pageable);
+
+    void addOrdersForShipper(Long shipperId, List<Long> orderIds);
+
+    List<OrderDTO> getAvailableOrders();
 }
