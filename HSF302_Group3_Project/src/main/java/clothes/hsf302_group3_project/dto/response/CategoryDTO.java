@@ -1,14 +1,9 @@
 package clothes.hsf302_group3_project.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
-
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 public class CategoryDTO {
@@ -17,4 +12,11 @@ public class CategoryDTO {
     private List<ProductDTO> products;
     private int productCount;
 
+    public CategoryDTO() {
+    }
+
+    public CategoryDTO(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }

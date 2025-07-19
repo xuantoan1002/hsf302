@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
                     .map(FieldError::getDefaultMessage)
                     .toList();
         } else {
-            messages = List.of("Lỗi không xác định");
+            messages = List.of("Error");
         }
 
         return createErrorPage(String.join("<br>", messages), request);
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ModelAndView handleUnknown(Exception ex, HttpServletRequest request) {
-        return createErrorPage("Lỗi hệ thống: " + ex.getMessage(), request);
+        return createErrorPage(ex.getMessage(), request);
     }
 
     private ModelAndView createErrorPage(String message, HttpServletRequest request) {

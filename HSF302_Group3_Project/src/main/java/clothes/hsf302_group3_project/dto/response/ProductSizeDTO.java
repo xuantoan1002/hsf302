@@ -1,20 +1,14 @@
 package clothes.hsf302_group3_project.dto.response;
 
-import clothes.hsf302_group3_project.entity.Product;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
+// ProductSizeDTO.java
 @Getter
 @Setter
 public class ProductSizeDTO {
     private Integer id;
-    private String size;
+    private String sizeName; // Changed from sizeId and sizeName
     private Integer quantity;
-    private Product product;
+    private Integer productId;
 }
-
-

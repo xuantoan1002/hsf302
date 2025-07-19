@@ -18,13 +18,13 @@ public class CategoryController {
     @GetMapping
     public String listCategories(Model model) {
         model.addAttribute("categories", categoryService.getAllCategoriesWithProductCount());
-        return "category";
+        return "category/category";
     }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("category", new CategoryDTO());
-        return "create-category"; // Trỏ đến file tạo mới
+        return "category/create-category"; // Trỏ đến file tạo mới
     }
 
     @PostMapping
@@ -36,7 +36,7 @@ public class CategoryController {
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Integer id, Model model) {
         model.addAttribute("category", categoryService.getCategoryById(id));
-        return "edit-category"; // Trỏ đến file chỉnh sửa
+        return "category/edit-category"; // Trỏ đến file chỉnh sửa
     }
 
     @PostMapping("/{id}")

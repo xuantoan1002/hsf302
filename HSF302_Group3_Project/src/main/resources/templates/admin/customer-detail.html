@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Customer Detail - Kaiadmin</title>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
+    <link rel="icon" th:href="@{/admin/img/kaiadmin/favicon.ico}" type="image/x-icon"/>
+
+    <!-- Fonts and icons -->
+    <script th:src="@{/admin/js/plugin/webfont/webfont.min.js}"></script>
+    <script>
+        WebFont.load({
+            google: {families: ["Public Sans:300,400,500,600,700"]},
+            custom: {
+                families: [
+                    "Font Awesome 5 Solid",
+                    "Font Awesome 5 Regular",
+                    "Font Awesome 5 Brands",
+                    "simple-line-icons",
+                ],
+                urls: ["/admin/css/fonts.min.css"],
+            },
+            active: function () {
+                sessionStorage.fonts = true;
+            },
+        });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" th:href="@{/admin/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/admin/css/plugins.min.css}"/>
+    <link rel="stylesheet" th:href="@{/admin/css/kaiadmin.min.css}"/>
+    <link rel="stylesheet" th:href="@{/admin/css/demo.css}"/>
+</head>
+<body>
+
+<div class="wrapper">
+    <div th:replace="/admin/fragment/sidebar :: sidebar"></div>
+    <div class="main-panel">
+        <div th:replace="/admin/fragment/header :: header"></div>
+
+        <div class="container">
+            <div class="page-inner">
+
+                <!-- Page Header -->
+                <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+                    <div>
+                        <h3 class="fw-bold mb-3">Customer Detail</h3>
+                        <h6 class="op-7 mb-2">
+                            <a th:href="@{/admin/customers}" class="text-primary">
+                                <i class="fa fa-arrow-left me-1"></i>Back to Customer List
+                            </a>
+                        </h6>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Customer Information Card -->
+                    <div class="col-md-4">
+                        <div class="card card-profile">
+                            <div class="card-header"
+                                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <div class="profile-picture">
+                                    <div class="avatar avatar-xl">
+                                        <div class="avatar-img rounded-circle bg-white d-flex align-items-center justify-content-center"
+                                             style="width: 80px; height: 80px; font-size: 32px; color: #667eea;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="user-profile text-center">
+                                    <div class="name" th:text="${customer.getName()}">Customer Name</div>
+                                    <div class="job" th:text="${'ID: ' + customer.getId()}">ID: 1</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Contact Information</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-4">
+                                        <strong><i class="fa fa-envelope me-2 text-primary"></i>Email:</strong>
+                                    </div>
+                                    <div class="col-8">
+                                        <span th:text="${customer.getEmail()}">email@example.com</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-4">
+                                        <strong><i class="fa fa-phone me-2 text-success"></i>Phone:</strong>
+                                    </div>
+                                    <div class="col-8">
+                                        <span th:text="${customer.getPhone()}">+84 123 456 789</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-4">
+                                        <strong><i class="fa fa-map-marker-alt me-2 text-danger"></i>Address:</strong>
+                                    </div>
+                                    <div class="col-8">
+                                        <span th:text="${customer.getAddress()}"></span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-4">
+                                        <strong><i class="fa fa-calendar me-2 text-info"></i>Joined:</strong>
+                                    </div>
+                                    <div class="col-8">
+                                        <span th:text="${customer.getCreatedAt()}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orders Section -->
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Purchase History</div>
+                            </div>
+                            <div class="card-body">
+                                <!-- Filter Form -->
+                                <form method="get" th:action="@{/admin/customers/{id}(id=${customer.getId()})}"
+                                      th:object="${request}" id="filterForm" class="mb-4">
+                                    <input type="hidden" id="currentPage" name="page" th:value="${currentPage}"/>
+
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <label for="filterStatus" class="form-label">Status</label>
+                                            <select class="form-select" id="filterStatus" th:field="*{status}"
+                                                    onchange="this.form.submit()">
+                                                <option value="PENDING" th:selected="${request.status == 'PENDING'}">
+                                                    Pending
+                                                </option>
+                                                <option value="CONFIRMED"
+                                                        th:selected="${request.status == 'CONFIRMED'}">Confirmed
+                                                </option>
+                                                <option value="SHIPPING" th:selected="${request.status == 'SHIPPING'}">
+                                                    Shipping
+                                                </option>
+                                                <option value="DELIVERED"
+                                                        th:selected="${request.status == 'DELIVERED'}">Delivered
+                                                </option>
+                                                <option value="COMPLETED"
+                                                        th:selected="${request.status == 'COMPLETED'}">Completed
+                                                </option>
+                                                <option value="CANCELLED"
+                                                        th:selected="${request.status == 'CANCELLED'}">Cancelled
+                                                </option>
+                                                <option value="DELIVERY_FAILED"
+                                                        th:selected="${request.status == 'DELIVERY_FAILED'}">Delivery
+                                                    Failed
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label for="filterShipperName" class="form-label">Shipper Name</label>
+                                            <input type="text" class="form-control" id="filterShipperName"
+                                                   placeholder="Enter shipper name" th:field="*{shipperName}"/>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label for="filterTotalFrom" class="form-label">Total From</label>
+                                            <input type="number" class="form-control" id="filterTotalFrom"
+                                                   placeholder="Min amount" th:field="*{totalFrom}" step="0.01"/>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label for="filterTotalTo" class="form-label">Total To</label>
+                                            <input type="number" class="form-control" id="filterTotalTo"
+                                                   placeholder="Max amount" th:field="*{totalTo}" step="0.01"/>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label for="filterSortField" class="form-label">Sort By</label>
+                                            <select class="form-select" id="filterSortField" th:field="*{sortField}"
+                                                    onchange="this.form.submit()">
+                                                <option value="">Default</option>
+                                                <option value="createdAt"
+                                                        th:selected="${request.sortField == 'createdAt'}">Created Date
+                                                </option>
+                                                <option value="total" th:selected="${request.sortField == 'total'}">
+                                                    Total Amount
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label for="filterSortOrder" class="form-label">Sort Order</label>
+                                            <select class="form-select" id="filterSortOrder" th:field="*{sortOrder}"
+                                                    onchange="this.form.submit()">
+                                                <option value="DESC"
+                                                        th:selected="${request.sortOrder == 'DESC' or request.sortOrder == null}">
+                                                    Newest First
+                                                </option>
+                                                <option value="ASC" th:selected="${request.sortOrder == 'ASC'}">Oldest
+                                                    First
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-primary me-2">
+                                                <i class="fa fa-filter me-1"></i>Apply Filters
+                                            </button>
+                                            <a th:href="@{/admin/customers/{id}(id=${customer.getId()})}"
+                                               class="btn btn-secondary">
+                                                <i class="fa fa-refresh me-1"></i>Reset
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Shipper</th>
+                                            <th>Total Amount</th>
+                                            <th>Status</th>
+                                            <th>Order Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="order : ${orders}">
+                                            <td>
+                                                <strong th:text="${'#' + order.getId()}"></strong>
+                                            </td>
+                                            <td>
+                                                <div th:if="${order.getShipper() != null}">
+                                                    <strong th:text="${order.getShipper()?.getName()}"></strong><br>
+                                                    <small class="text-muted"
+                                                           th:text="${order.getShipper()?.getPhone()}"></small>
+                                                </div>
+                                                <div th:if="${order.getShipper() == null}">
+                                                    <span class="text-muted">Not assigned</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold text-success"
+                                                      th:text="${order.getTotal()}"></span>
+                                            </td>
+                                            <td>
+                                                <span th:switch="${order.getStatus()}">
+                                                    <span th:case="'PENDING'" class="badge badge-warning">Pending</span>
+                                                    <span th:case="'CONFIRMED'" class="badge badge-info">Confirmed</span>
+                                                    <span th:case="'SHIPPING'" class="badge badge-primary">Shipping</span>
+                                                    <span th:case="'DELIVERED'" class="badge badge-success">Delivered</span>
+                                                    <span th:case="'COMPLETED'" class="badge badge-success">Completed</span>
+                                                    <span th:case="'CANCELLED'" class="badge badge-danger">Cancelled</span>
+                                                    <span th:case="'DELIVERY_FAILED'" class="badge badge-danger">Delivery Failed</span>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span th:text="${order.getCreatedAt()}"></span>
+                                            </td>
+                                            <td>
+                                                <a th:href="@{/admin/orders/{id}(id=${order.getId()})}"
+                                                   class="btn btn-info" title="View Order">
+                                                    View Order
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- No orders message -->
+                                <div th:if="${#lists.isEmpty(orders)}" class="text-center py-4">
+                                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No orders found</h5>
+                                    <p class="text-muted">No orders match the current filters or this customer hasn't
+                                        placed any orders yet.</p>
+                                </div>
+
+                                <!-- Pagination -->
+                                <div th:if="${totalPages > 1}" class="d-flex justify-content-center mt-4">
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination pagination-sm mb-0 gap-2">
+                                            <!-- Previous -->
+                                            <li class="page-item" th:classappend="${!hasPrevious} ? ' disabled'">
+                                                <button type="button" class="page-link rounded-pill px-3"
+                                                        th:disabled="${!hasPrevious}"
+                                                        th:onclick="${hasPrevious} ? 'changePage(' + ${currentPage} + ', \'prev\')' : null">
+                                                    &laquo; Prev
+                                                </button>
+                                            </li>
+
+                                            <!-- Current page display -->
+                                            <li class="page-item active">
+                                                    <span class="page-link rounded-pill px-3"
+                                                          th:text="${currentPage + 1 + '/' + totalPages}"></span>
+                                            </li>
+
+                                            <!-- Next -->
+                                            <li class="page-item" th:classappend="${!hasNext} ? ' disabled'">
+                                                <button type="button" class="page-link rounded-pill px-3"
+                                                        th:disabled="${!hasNext}"
+                                                        th:onclick="${hasNext} ? 'changePage(' + ${currentPage} + ', \'next\')' : null">
+                                                    Next &raquo;
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script th:src="@{/admin/js/core/jquery-3.7.1.min.js}"></script>
+<script th:src="@{/admin/js/core/popper.min.js}"></script>
+<script th:src="@{/admin/js/core/bootstrap.min.js}"></script>
+<script th:src="@{/admin/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js}"></script>
+<script th:src="@{/admin/js/plugin/sweetalert/sweetalert.min.js}"></script>
+<script th:src="@{/admin/js/kaiadmin.min.js}"></script>
+<script>
+
+    // Confirm delete function
+    function confirmDelete() {
+        swal({
+            title: "Are you sure?",
+            text: "You won't be able to revert this! All related data will be permanently deleted.",
+            type: "warning",
+            buttons: {
+                confirm: {
+                    text: "Yes, delete it!",
+                    className: "btn btn-danger",
+                },
+                cancel: {
+                    visible: true,
+                    text: "Cancel",
+                    className: "btn btn-secondary",
+                },
+            },
+        }).then((confirmed) => {
+            if (confirmed) {
+                document.getElementById('deleteForm').submit();
+            }
+        });
+    }
+
+    // Change page function
+    function changePage(page, choice) {
+        if (choice === "next") {
+            document.getElementById("currentPage").value = page + 1;
+        } else if (choice === "prev") {
+            document.getElementById("currentPage").value = page - 1;
+        } else {
+            return;
+        }
+        document.getElementById("filterForm").submit();
+    }
+</script>
+</body>
+</html>

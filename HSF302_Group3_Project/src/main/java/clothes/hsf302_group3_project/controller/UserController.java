@@ -1,8 +1,11 @@
 package clothes.hsf302_group3_project.controller;
 
 import clothes.hsf302_group3_project.dto.request.ChangePasswordRequest;
+import clothes.hsf302_group3_project.dto.request.GetOrderRequest;
 import clothes.hsf302_group3_project.dto.request.GetUserRequest;
+import clothes.hsf302_group3_project.dto.response.OrderDTO;
 import clothes.hsf302_group3_project.dto.response.UserDTO;
+import clothes.hsf302_group3_project.service.OrderService;
 import clothes.hsf302_group3_project.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +16,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final OrderService orderService;
 
     @GetMapping("/admin/admins")
     public ModelAndView getAllAdmins(@Valid @ModelAttribute GetUserRequest getUserRequest, Pageable pageable) {
@@ -93,15 +99,50 @@ public class UserController {
     @PostMapping("/admin/shippers/{id}/start-shipping")
     public ModelAndView startShipping(@PathVariable Long id) {
         userService.startShipping(id);
+        return new ModelAndView("redirect:/admin/shippers/" + id);
+    }
+
+    // cần sửa lọc các shipper available or not
+    @GetMapping("/admin/shippers/{id}")
+    public ModelAndView getShipperDetailPage(@PathVariable Long id, @Valid @ModelAttribute GetOrderRequest getOrderRequest, Pageable pageable) {
+        ModelAndView mav = new ModelAndView("/admin/shipper-detail");
+        Page<OrderDTO> orders = orderService.getOrdersByShipperId(id, getOrderRequest, pageable);
+        mav.addObject("shipper", userService.getUserById(id));
+        mav.addObject("orders", orders);
+        mav.addObject("availableOrders", orderService.getAvailableOrders());
+        mav.addObject("request", getOrderRequest);
+        mav.addObject("totalPages", orders.getTotalPages());
+        mav.addObject("currentPage", orders.getNumber());
+        mav.addObject("hasPrevious", orders.hasPrevious());
+        mav.addObject("hasNext", orders.hasNext());
+        return mav;
+    }
+
+    @PostMapping("/admin/shippers/{id}/delete") //to customer
+    public ModelAndView deleteShipper(@PathVariable Long id) {
+        userService.deleteShipper(id);
         return new ModelAndView("redirect:/admin/shippers");
     }
 
-
-    // cần sửa lọc các shipper available or not
-    @GetMapping("/admin/users/{id}")
-    public ModelAndView getUser(@PathVariable Long id) {
-        ModelAndView mav = new ModelAndView("/admin/user-detail");
-        return null;
+    @PostMapping("/admin/shippers/{shipperId}/add-orders")
+    public ModelAndView addOrdersForShipper(@PathVariable Long shipperId, @RequestParam List<Long> orderIds) {
+        orderService.addOrdersForShipper(shipperId, orderIds);
+        return new ModelAndView("redirect:/admin/shippers/" + shipperId);
     }
+
+    @GetMapping("/admin/customers/{id}")
+    public ModelAndView getCustomerDetailPage(@PathVariable Long id, @Valid @ModelAttribute GetOrderRequest getOrderRequest, Pageable pageable) {
+        ModelAndView mav = new ModelAndView("/admin/customer-detail");
+        Page<OrderDTO> orders = orderService.getOrdersByCustomerId(id, getOrderRequest, pageable);
+        mav.addObject("customer", userService.getUserById(id));
+        mav.addObject("orders", orders);
+        mav.addObject("request", getOrderRequest);
+        mav.addObject("totalPages", orders.getTotalPages());
+        mav.addObject("currentPage", orders.getNumber());
+        mav.addObject("hasPrevious", orders.hasPrevious());
+        mav.addObject("hasNext", orders.hasNext());
+        return mav;
+    }
+
 
 }

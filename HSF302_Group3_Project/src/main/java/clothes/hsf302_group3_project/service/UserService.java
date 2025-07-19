@@ -2,12 +2,10 @@ package clothes.hsf302_group3_project.service;
 
 import clothes.hsf302_group3_project.dto.request.ChangePasswordRequest;
 import clothes.hsf302_group3_project.dto.request.GetUserRequest;
-import clothes.hsf302_group3_project.dto.response.OrderDTO;
 import clothes.hsf302_group3_project.dto.response.UserDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 public interface UserService {
     Page<UserDTO> getAdmins(GetUserRequest getUserRequest, Pageable pageable);
@@ -30,4 +28,5 @@ public interface UserService {
 
     UserDTO getUserById(Long id);
 
+    void deleteShipper(Long shipperId);
 }

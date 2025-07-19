@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static clothes.hsf302_group3_project.security.utils.SecurityUtil.getCurrentUserEmail;
 
@@ -201,8 +202,62 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderDTO> getOrdersByShipperId(Long shipperId, GetOrderRequest getOrderRequest, Pageable pageable) {
-        return null;
+    public Page<OrderDTO> getOrdersByShipperId(Long shipperId, GetOrderRequest request, Pageable pageable) {
+        String customerName = request.getCustomerName();
+        OrderStatus status = (request.getStatus() == null || request.getStatus().isBlank()) ? OrderStatus.CONFIRMED : OrderStatus.valueOf(request.getStatus());
+        String sortOrder = (request.getSortOrder() == null || request.getSortOrder().isBlank()) ? "DESC" : request.getSortOrder();
+        String sortField = (request.getSortField() == null || request.getSortField().isBlank()) ? "createdAt" : request.getSortField();
+        Double totalFrom, totalTo;
+        try {
+            totalFrom = (request.getTotalFrom() == null || request.getTotalFrom().isBlank()) ? null : Double.parseDouble(request.getTotalFrom());
+            totalTo = (request.getTotalTo() == null || request.getTotalTo().isBlank()) ? null : Double.parseDouble(request.getTotalTo());
+        } catch (NumberFormatException e) {
+            throw new BusinessException("Total value must be a number!");
+        }
+
+        Sort.Direction direction = Sort.Direction.fromString(sortOrder);
+        pageable = PageRequest.of(pageable.getPageNumber(), 10, Sort.by(direction, sortField));
+        Page<Order> orders = orderRepository.findByShipperId(shipperId, status, customerName, totalFrom, totalTo, pageable);
+        return orders.map(converterDTO::convertToOrderDTO);
+    }
+
+    @Override
+    public Page<OrderDTO> getOrdersByCustomerId(Long customerId, GetOrderRequest request, Pageable pageable) {
+        String shipperName = request.getShipperName();
+        OrderStatus status = (request.getStatus() == null || request.getStatus().isBlank()) ? OrderStatus.CONFIRMED : OrderStatus.valueOf(request.getStatus());
+        String sortOrder = (request.getSortOrder() == null || request.getSortOrder().isBlank()) ? "DESC" : request.getSortOrder();
+        String sortField = (request.getSortField() == null || request.getSortField().isBlank()) ? "createdAt" : request.getSortField();
+        Double totalFrom, totalTo;
+        try {
+            totalFrom = (request.getTotalFrom() == null || request.getTotalFrom().isBlank()) ? null : Double.parseDouble(request.getTotalFrom());
+            totalTo = (request.getTotalTo() == null || request.getTotalTo().isBlank()) ? null : Double.parseDouble(request.getTotalTo());
+        } catch (NumberFormatException e) {
+            throw new BusinessException("Total value must be a number!");
+        }
+
+        Sort.Direction direction = Sort.Direction.fromString(sortOrder);
+        pageable = PageRequest.of(pageable.getPageNumber(), 10, Sort.by(direction, sortField));
+        Page<Order> orders = orderRepository.findByCustomerId(customerId, status, shipperName, totalFrom, totalTo, pageable);
+        return orders.map(converterDTO::convertToOrderDTO);
+    }
+
+    @Transactional
+    @Override
+    public void addOrdersForShipper(Long shipperId, List<Long> orderIds) {
+        List<Order> orders = orderRepository.findAllById(orderIds);
+
+        for (Order order : orders) {
+            if (order.getStatus() != OrderStatus.CONFIRMED) {
+                throw new BusinessException("Assignment is only allowed for orders with status CONFIRMED. Order #" + order.getId() + " currently has status: " + order.getStatus() + ".");
+            }
+        }
+        orderRepository.addOrdersForShipper(shipperId, orderIds);
+    }
+
+    @Override
+    public List<OrderDTO> getAvailableOrders() {
+        List<Order> orders = orderRepository.findAvailableOrders(OrderStatus.CONFIRMED);
+        return orders.stream().map(converterDTO::convertToOrderDTO).toList();
     }
 
     @Override
