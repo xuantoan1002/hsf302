@@ -5,6 +5,7 @@ import clothes.hsf302_group3_project.enums.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -24,4 +25,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "AND (:totalTo IS NULL OR o.total <= :totalTo)")
     Page<Order> findNoneShipperOrders(String customerName, OrderStatus status, Double totalFrom, Double totalTo, Pageable pageable);
 
+    @Modifying
+    @Query("UPDATE Order o " +
+            "SET o.status = :newStatus " +
+            "WHERE o.shipper.id = :shipperId " +
+            "AND o.status = :oldStatus")
+    void startShippingOrders(Long shipperId, OrderStatus oldStatus, OrderStatus newStatus);
 }

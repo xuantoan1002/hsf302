@@ -25,5 +25,7 @@ public interface OrderService {
 
     void cancelOrder(Long id);
 
-    void startShipperOrder(Long id);
+    void assignShipper(Long orderId, Long shipperId);
+
+    Page<OrderDTO> getOrdersByShipperId(Long shipperId, GetOrderRequest getOrderRequest, Pageable pageable);
 }

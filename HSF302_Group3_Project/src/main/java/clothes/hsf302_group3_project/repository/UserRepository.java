@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import clothes.hsf302_group3_project.enums.OrderStatus;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -32,15 +33,27 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findShippers(String name, String email, String phone, Pageable pageable);
 
     @Query("SELECT u from User u " +
-            "JOIN Order o ON o.shipper.id = u.id " +
+            "LEFT JOIN Order o ON o.shipper.id = u.id " +
             "WHERE NOT EXISTS (" +
             "            SELECT 1 FROM Order o " +
-            "            WHERE o.shipper.id = u.id AND o.status = :status " +
-            "        )" +
+            "            WHERE o.shipper.id = u.id AND o.status = 'SHIPPING' " +
+            "        ) " +
             "AND (:name IS NULL OR u.name LIKE CONCAT('%', :name, '%'))" +
             "AND (:email IS NULL OR u.email LIKE CONCAT('%', :email, '%'))" +
             "AND (:phone IS NULL OR u.phone LIKE CONCAT('%', :phone, '%'))" +
+            "AND u.role = 'SHIPPER'" +
             "GROUP BY u")
     Page<User> findAvailableShipper(String email, String name, String phone, OrderStatus status, Pageable pageable);
 
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END " +
+            "FROM User u " +
+            "JOIN Order o ON o.shipper.id = u.id " +
+            "WHERE u.id = :shipperId " +
+            "AND NOT EXISTS (" +
+            "    SELECT 1 FROM Order o " +
+            "    WHERE o.shipper.id = u.id " +
+            "    AND o.status = :status" +
+            ")" +
+            "GROUP BY u")
+    boolean isAvailableShipper(@Param("shipperId") Long shipperId, OrderStatus status);
 }

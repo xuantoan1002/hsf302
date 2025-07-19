@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-
+    @Transactional
     @Override
     public boolean markOrderAsCompleted(Long id) {
         Optional<Order> orderOpt = orderRepository.findById(id);
@@ -142,6 +142,7 @@ public class OrderServiceImpl implements OrderService {
         return orderDTOs;
     }
 
+    @Transactional
     @Override
     public void confirmOrder(Long id) {
         Order thisOrder = orderRepository.findById(id).orElseThrow(
@@ -162,6 +163,7 @@ public class OrderServiceImpl implements OrderService {
         orderStatusHistoryRepository.save(orderStatusHistory);
     }
 
+    @Transactional
     @Override
     public void cancelOrder(Long id) {
         Order thisOrder = orderRepository.findById(id).orElseThrow(
@@ -182,27 +184,27 @@ public class OrderServiceImpl implements OrderService {
         orderStatusHistoryRepository.save(orderStatusHistory);
     }
 
+    @Transactional
     @Override
-    public void startShipperOrder(Long id) {
-        Order thisOrder = orderRepository.findById(id).orElseThrow(
+    public void assignShipper(Long orderId, Long shipperId) {
+        Order thisOrder = orderRepository.findById(orderId).orElseThrow(
                 () -> new BusinessException("Order not found!")
         );
         if (!thisOrder.getStatus().equals(OrderStatus.CONFIRMED)) {
             throw new BusinessException("Order status must be CONFIRMED to start shipping!");
         }
-        thisOrder.setStatus(OrderStatus.SHIPPING);
+        User thisShipper = userRepository.findById(shipperId).orElseThrow(
+                () -> new BusinessException("Shipper not found!")
+        );
+        thisOrder.setShipper(thisShipper);
         orderRepository.save(thisOrder);
-
-        OrderStatusHistory orderStatusHistory = OrderStatusHistory.builder()
-                .order(thisOrder)
-                .status(OrderStatus.SHIPPING)
-                .changedAt(LocalDateTime.now())
-                .build();
-
-        orderStatusHistoryRepository.save(orderStatusHistory);
     }
-    
-    
+
+    @Override
+    public Page<OrderDTO> getOrdersByShipperId(Long shipperId, GetOrderRequest getOrderRequest, Pageable pageable) {
+        return null;
+    }
+
     @Override
     public OrderDTO getOrder(Long id) {
         Order order = orderRepository.findById(id).orElseThrow(

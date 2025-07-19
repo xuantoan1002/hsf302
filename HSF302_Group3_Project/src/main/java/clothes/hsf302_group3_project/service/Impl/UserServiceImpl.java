@@ -9,6 +9,7 @@ import clothes.hsf302_group3_project.enums.OrderStatus;
 import clothes.hsf302_group3_project.exception.BusinessException;
 import clothes.hsf302_group3_project.exception.ResourceAlreadyExistsException;
 import clothes.hsf302_group3_project.exception.ResourceNotFoundException;
+import clothes.hsf302_group3_project.repository.OrderRepository;
 import clothes.hsf302_group3_project.repository.UserRepository;
 import clothes.hsf302_group3_project.security.utils.SecurityUtil;
 import clothes.hsf302_group3_project.service.EmailService;
@@ -31,6 +32,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
     private final ConverterDTO converterDTO;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
@@ -196,4 +198,31 @@ public class UserServiceImpl implements UserService {
         return shippers.map(converterDTO::convertToUserDTO);
     }
 
+    @Transactional
+    @Override
+    public void startShipping(Long shipperId) {
+        User thisShipper = isAvailableShipper(shipperId);
+        if (thisShipper == null) {
+            throw new BusinessException("Shipper is not available!");
+        }
+        orderRepository.startShippingOrders(shipperId, OrderStatus.CONFIRMED, OrderStatus.SHIPPING);
+    }
+
+    @Override
+    public UserDTO getUserById(Long id) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("User not found!")
+        );
+        return converterDTO.convertToUserDTO(user);
+    }
+
+    public User isAvailableShipper(Long shipperId) {
+        User thisShipper = userRepository.findById(shipperId).orElseThrow(
+                () -> new ResourceNotFoundException("Shipper not found!")
+        );
+        if (!thisShipper.getRole().equals("SHIPPER")) {
+            throw new BusinessException("This user is not a shipper!");
+        }
+        return userRepository.isAvailableShipper(shipperId, OrderStatus.SHIPPING) ? thisShipper : null;
+    }
 }

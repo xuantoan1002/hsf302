@@ -155,21 +155,21 @@
         </div>
 
         <div class="cart-right order-summary">
-            <h3>Thông Tin Đơn Hàng</h3>
+            <h3>Order Information</h3>
             <div class="row justify-content-between">
-                <div class="col">Tạm tính:</div>
+                <div class="col">Subtotal:</div>
                 <div class="col text-end" data-cart-total-price>
                     <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
                 </div>
             </div>
             <div class="row justify-content-between">
-                <div class="col">Phí vận chuyển:</div>
+                <div class="col">Shipping Fee:</div>
                 <div class="col text-end">
                     <span th:text="0 + ' đ'"></span>
                 </div>
             </div>
             <div class="row justify-content-between fw-bold">
-                <div class="col">Tổng số tiền</div>
+                <div class="col">Total:</div>
                 <div class="col text-end" data-cart-total-price>
                     <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
                 </div>
@@ -185,7 +185,7 @@
                 </div>
 
                 <input type="hidden" name="cartDetailIds" id="cartDetailIdsInput" />
-                <button type="submit"  class="btn btn-success mt-3 w-100">Tiến hành thanh toán</button>
+                <button type="submit"  class="btn btn-success mt-3 w-100">Proceed To Checkout</button>
             </form>
         </div>
     </div>
@@ -201,11 +201,11 @@
     if (errorMessage !== null && errorMessage !== "null" && errorMessage.trim() !== "") {
         Swal.fire({
             icon: 'warning',
-            title: 'Cảnh báo',
+            title: 'Warning',
             text: errorMessage,
             showCancelButton: true,
-            confirmButtonText: 'Cập nhật ngay',
-            cancelButtonText: 'Để sau'
+            confirmButtonText: 'Update now',
+            cancelButtonText: 'Later'
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = '/user/profile';
@@ -297,7 +297,7 @@
             .map(cb => cb.value);
         if (selectedIds.length === 0) {
             e.preventDefault();
-            alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán!');
+            alert('Please choose at least one item before proceed checkout!');
             return;
         }
         sessionStorage.setItem('checkoutAttempt', 'true');

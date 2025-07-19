@@ -46,9 +46,9 @@ public class OrderController {
     public String handlePlaceOrder(
             HttpServletRequest request,
             @RequestParam("cartItemIds") List<Long> cartItemIds,
-            @RequestParam("recipientName")String recepientName,
-            @RequestParam("recipientPhone")String recepientPhone,
-            @RequestParam("recipientAddress")String recepientAddress) {
+            @RequestParam("recipientName") String recepientName,
+            @RequestParam("recipientPhone") String recepientPhone,
+            @RequestParam("recipientAddress") String recepientAddress) {
 
         String email = getCurrentUserEmail();
         User currentUser = userRepository.findByEmail(email).get();
@@ -79,7 +79,7 @@ public class OrderController {
     public String viewOrderItems(@PathVariable Long orderId, Model model) {
         List<OrderItemDTO> orderItems = new ArrayList<>();
         Order o = orderRepository.findById(orderId).get();
-        for(OrderItem oi : o.getOrderItems()) {
+        for (OrderItem oi : o.getOrderItems()) {
             orderItems.add(converterDTO.toOrderItemDTO(oi));
         }
         model.addAttribute("orderItems", orderItems);
@@ -124,11 +124,10 @@ public class OrderController {
         return "redirect:/admin/orders/" + id;
     }
 
-    @PostMapping("/admin/orders/{id}/start-shipping")
-    public String startShippingOrder(@PathVariable Long id) {
-        orderService.startShipperOrder(id);
+    @PostMapping("/admin/orders/{id}/assign-shipper")
+    public String assignShipper(@PathVariable Long id, @RequestParam Long shipperId) {
+        orderService.assignShipper(id, shipperId);
         return "redirect:/admin/orders/" + id;
     }
-
 
 }

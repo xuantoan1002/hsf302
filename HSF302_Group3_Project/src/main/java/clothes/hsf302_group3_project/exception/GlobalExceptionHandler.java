@@ -22,10 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ModelAndView handleBusinessException(BusinessException ex, HttpServletRequest request) {
-        String referer = request.getHeader("Referer");
-        ModelAndView mav = new ModelAndView("redirect:" + referer);
-        mav.addObject("errorMessage", ex.getMessage());
-        return mav;
+        return createErrorPage(ex.getMessage(), request);
     }
 
     @ExceptionHandler({ResourceNotFoundException.class, UsernameNotFoundException.class})
