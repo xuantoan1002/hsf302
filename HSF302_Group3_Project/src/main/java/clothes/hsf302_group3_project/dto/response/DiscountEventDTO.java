@@ -1,6 +1,7 @@
 package clothes.hsf302_group3_project.dto.response;
 
 import clothes.hsf302_group3_project.enums.DiscountType;
+import clothes.hsf302_group3_project.enums.TargetType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ public class DiscountEventDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private DiscountType discountType;
+    private TargetType targetType;
     private double discountValue;
     private Integer productId;
     private String productName;

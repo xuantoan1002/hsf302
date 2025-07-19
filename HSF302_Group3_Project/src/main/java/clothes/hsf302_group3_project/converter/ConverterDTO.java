@@ -43,6 +43,7 @@ public class ConverterDTO {
     public DiscountEventDTO convertToDiscountEventDTO(DiscountEvent discountEvent) {
         DiscountEventDTO dto = new DiscountEventDTO();
         dto.setId(discountEvent.getId());
+        dto.setTargetType(discountEvent.getTargetType());
         dto.setName(discountEvent.getName());
         dto.setStartDate(discountEvent.getStartDate());
         dto.setEndDate(discountEvent.getEndDate());
