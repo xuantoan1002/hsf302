@@ -1,10 +1,8 @@
 package clothes.hsf302_group3_project.controller;
 
+import clothes.hsf302_group3_project.dto.response.DiscountEventDTO;
 import clothes.hsf302_group3_project.dto.response.ProductDTO;
-import clothes.hsf302_group3_project.service.CategoryService;
-import clothes.hsf302_group3_project.service.ProductImageService;
-import clothes.hsf302_group3_project.service.ProductService;
-import clothes.hsf302_group3_project.service.ProductSizeService;
+import clothes.hsf302_group3_project.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +22,8 @@ public class ProductController {
     private  ProductSizeService productSizeService;
     @Autowired
     private ProductImageService productImageService;
+    @Autowired
+    private DiscountService discountService;
 
 
 
@@ -84,5 +84,9 @@ public class ProductController {
         model.addAttribute("categories", categoryService.getAllCategoriesWithProductCount());
         model.addAttribute("availableSizes", productSizeService.getAllSizesWithProductInfo());
         model.addAttribute("availableImages", productImageService.getAllImages());
+    }
+    @GetMapping("/{productId}/discount")
+    public DiscountEventDTO getDiscountForCourse(@PathVariable Integer productId) {
+        return discountService.getDiscountInfo(productId);
     }
 }

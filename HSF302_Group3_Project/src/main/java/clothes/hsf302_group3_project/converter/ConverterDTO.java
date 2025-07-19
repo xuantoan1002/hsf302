@@ -40,6 +40,19 @@ public class ConverterDTO {
 
         return dto;
     }
+    public DiscountEventDTO convertToDiscountEventDTO(DiscountEvent discountEvent) {
+        DiscountEventDTO dto = new DiscountEventDTO();
+        dto.setId(discountEvent.getId());
+        dto.setName(discountEvent.getName());
+        dto.setStartDate(discountEvent.getStartDate());
+        dto.setEndDate(discountEvent.getEndDate());
+        dto.setDiscountType(discountEvent.getDiscountType());
+        dto.setDiscountValue(discountEvent.getDiscountValue());
+        dto.setProductId(discountEvent.getProduct().getId());
+        dto.setProductName(discountEvent.getProduct().getName());
+        dto.setNote(discountEvent.getNote());
+        return dto;
+    }
 
     public ProductImageDTO convertToProductImageDTO(ProductImage image) {
         if (image == null) return null;
