@@ -84,7 +84,7 @@ public class HomePageController {
         int productId = id;
         String email = "tqt@gmail.com";
 //        String email = (String) session.getAttribute("email");
-        this.cartService.handleAddProductToCart(email, productId, session, 1l);
+        this.cartService.handleAddProductToCart(productId, 1l);
         return "redirect:/";
     }
 }

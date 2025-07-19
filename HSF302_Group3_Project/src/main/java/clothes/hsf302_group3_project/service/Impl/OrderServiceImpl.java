@@ -21,11 +21,15 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static clothes.hsf302_group3_project.security.utils.SecurityUtil.getCurrentUserEmail;
 
 @RequiredArgsConstructor
 @Service
 public class OrderServiceImpl implements OrderService {
 
+    private final UserRepository userRepository;
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -34,9 +38,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
 
     @Transactional
-    public void handlePlaceOrder(
-            User user, HttpSession session, List<Long> cartItemIds) {
-
+    public void handlePlaceOrder(List<Long> cartItemIds) {
+        String email = getCurrentUserEmail();
+        User user = this.userRepository.findByEmail(email).get();
         Cart cart = this.cartRepository.findByUser(user);
         if (cart != null) {
             List<CartItem> cartItems = new ArrayList<>();
@@ -48,7 +52,6 @@ public class OrderServiceImpl implements OrderService {
                 //create order
                 Order order = new Order();
                 order.setCustomer(user);
-
                 order.setStatus(OrderStatus.PENDING);
 
                 double sum = 0;
@@ -83,6 +86,25 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Transactional
+    @Override
+    public boolean markOrderAsCompleted(Long id) {
+        Optional<Order> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isEmpty()) {
+            return false;
+        }
+
+        Order order = orderOpt.get();
+        if (order.getStatus() == OrderStatus.COMPLETED) {
+            return false;
+        }
+
+        order.setStatus(OrderStatus.COMPLETED);
+        orderRepository.save(order);
+        return true;
+    }
+
+
     @Override
     public Page<OrderDTO> getOrders(GetOrderRequest request, Pageable pageable) {
         String shipperName = request.getShipperName();
@@ -110,13 +132,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDTO getOrder(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow(
-                () -> new BusinessException("Order not found!")
-        );
-        return converterDTO.convertToOrderDTO(order);
+    public List<OrderDTO> getOrders() {
+        User user = userRepository.findByEmail(getCurrentUserEmail()).get();
+        List<Order> orders = user.getPlacedOrders();
+        List<OrderDTO> orderDTOs = new ArrayList<>();
+        for (Order order : orders) {
+            orderDTOs.add(converterDTO.convertToOrderDTO(order));
+        }
+        return orderDTOs;
     }
 
+    @Transactional
     @Override
     public void confirmOrder(Long id) {
         Order thisOrder = orderRepository.findById(id).orElseThrow(
@@ -137,6 +163,7 @@ public class OrderServiceImpl implements OrderService {
         orderStatusHistoryRepository.save(orderStatusHistory);
     }
 
+    @Transactional
     @Override
     public void cancelOrder(Long id) {
         Order thisOrder = orderRepository.findById(id).orElseThrow(
@@ -157,24 +184,33 @@ public class OrderServiceImpl implements OrderService {
         orderStatusHistoryRepository.save(orderStatusHistory);
     }
 
+    @Transactional
     @Override
-    public void startShipperOrder(Long id) {
-        Order thisOrder = orderRepository.findById(id).orElseThrow(
+    public void assignShipper(Long orderId, Long shipperId) {
+        Order thisOrder = orderRepository.findById(orderId).orElseThrow(
                 () -> new BusinessException("Order not found!")
         );
         if (!thisOrder.getStatus().equals(OrderStatus.CONFIRMED)) {
             throw new BusinessException("Order status must be CONFIRMED to start shipping!");
         }
-        thisOrder.setStatus(OrderStatus.SHIPPING);
+        User thisShipper = userRepository.findById(shipperId).orElseThrow(
+                () -> new BusinessException("Shipper not found!")
+        );
+        thisOrder.setShipper(thisShipper);
         orderRepository.save(thisOrder);
+    }
 
-        OrderStatusHistory orderStatusHistory = OrderStatusHistory.builder()
-                .order(thisOrder)
-                .status(OrderStatus.SHIPPING)
-                .changedAt(LocalDateTime.now())
-                .build();
+    @Override
+    public Page<OrderDTO> getOrdersByShipperId(Long shipperId, GetOrderRequest getOrderRequest, Pageable pageable) {
+        return null;
+    }
 
-        orderStatusHistoryRepository.save(orderStatusHistory);
+    @Override
+    public OrderDTO getOrder(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new BusinessException("Order not found!")
+        );
+        return converterDTO.convertToOrderDTO(order);
     }
 
 }

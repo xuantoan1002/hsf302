@@ -22,6 +22,6 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public List<OrderItemDTO> getOrderItemsByOrderId(Long orderId) {
         List<OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
-        return orderItems.stream().map(converterDTO::convertToOrderItemDTO).toList();
+        return orderItems.stream().map(converterDTO::toOrderItemDTO).toList();
     }
 }

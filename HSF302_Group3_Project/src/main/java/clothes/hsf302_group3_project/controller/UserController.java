@@ -90,5 +90,18 @@ public class UserController {
         return new ModelAndView("redirect:/");
     }
 
+    @PostMapping("/admin/shippers/{id}/start-shipping")
+    public ModelAndView startShipping(@PathVariable Long id) {
+        userService.startShipping(id);
+        return new ModelAndView("redirect:/admin/shippers");
+    }
+
+
+    // cần sửa lọc các shipper available or not
+    @GetMapping("/admin/users/{id}")
+    public ModelAndView getUser(@PathVariable Long id) {
+        ModelAndView mav = new ModelAndView("/admin/user-detail");
+        return null;
+    }
 
 }

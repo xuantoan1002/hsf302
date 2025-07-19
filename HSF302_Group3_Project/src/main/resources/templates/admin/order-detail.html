@@ -211,26 +211,35 @@
                     <span>Shipper Information</span>
 
                     <!-- Nếu chưa có shipper -->
-                    <a th:if="${order.shipper == null}"
-                       th:href="@{'/admin/orders/assign-shipper/' + ${order.id}}"
-                       class="btn btn-sm btn-primary">
-                        Add Shipper
-                    </a>
+                    <button type="button"
+                            class="btn btn-info btn-sm shipper-assign-btn"
+                            th:data-order-id="${order.id}"
+                            th:if="${order.shipper == null && order.status == 'CONFIRMED'}">
+                        <i class="fas fa-plus me-2"></i>Assign shipper
+                    </button>
 
                     <!-- Nếu đã có shipper -->
-                    <a th:if="${order.shipper != null}"
-                       th:href="@{'/admin/orders/change-shipper/' + ${order.id}}"
-                       class="btn btn-sm btn-warning">
-                        Change Shipper
-                    </a>
+                    <button type="button"
+                            class="btn btn-warning btn-sm shipper-assign-btn"
+                            th:data-order-id="${order.id}"
+                            th:if="${order.shipper != null && order.status == 'CONFIRMED'}">
+                        <i class="fas fa-exchange-alt me-2"></i>Change shipper
+                    </button>
                 </div>
 
                 <div class="card-body">
-                    <p><span class="text-muted-label">Name:</span> <span th:text="${order.shipper?.name}"></span></p>
-                    <p><span class="text-muted-label">Email:</span> <span th:text="${order.shipper?.email}"></span></p>
-                    <p><span class="text-muted-label">Phone:</span> <span th:text="${order.shipper?.phone}"></span></p>
-                    <p><span class="text-muted-label">Shipping Address:</span>
-                        <span th:text="${order.shipper?.address}"></span></p>
+                    <!-- Hiển thị thông tin shipper hoặc thông báo chưa có shipper -->
+                    <div th:if="${order.shipper != null}">
+                        <p><span class="text-muted-label">Name:</span> <span th:text="${order.shipper.name}"></span></p>
+                        <p><span class="text-muted-label">Email:</span> <span th:text="${order.shipper.email}"></span></p>
+                        <p><span class="text-muted-label">Phone:</span> <span th:text="${order.shipper.phone}"></span></p>
+                        <p><span class="text-muted-label">Address:</span>
+                            <span th:text="${order.shipper.address}"></span></p>
+                    </div>
+                    <div th:if="${order.shipper == null}" class="text-muted text-center py-3">
+                        <i class="fas fa-user-times fa-2x mb-2"></i>
+                        <p>No shipper assigned yet</p>
+                    </div>
                 </div>
             </div>
 
@@ -284,10 +293,10 @@
                         </button>
 
                         <button type="button"
-                                class="btn btn-info btn-sm"
-                                id="startShippingBtn"
+                                class="btn btn-info btn-sm shipper-assign-btn"
                                 th:data-order-id="${order.id}"
-                                th:if="${order.status == 'CONFIRMED'}">Start Shipping
+                                th:if="${order.status == 'CONFIRMED'}">
+                            <i class="fas fa-shipping-fast me-2"></i>Assign shipper
                         </button>
 
                         <button type="button"
@@ -358,7 +367,8 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <input type="search" class="form-control" id="shipperSearch" placeholder="Search shipper by name, phone, or email...">
+                    <input type="search" class="form-control" id="shipperSearch"
+                           placeholder="Search shipper by name, phone, or email...">
                 </div>
                 <div id="shipperList">
                     <!-- Shipper cards will be populated here from hidden table -->
@@ -368,7 +378,7 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="confirmShippingBtn" disabled>
                     <i class="fas fa-check me-2"></i>
-                    Start Shipping
+                    Assign shipper
                 </button>
             </div>
         </div>
@@ -403,6 +413,7 @@
 <script th:src="@{/admin/js/demo.js}"></script>
 
 <script>
+    // Sparkline charts
     $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
         type: "line",
         height: "70",
@@ -430,176 +441,283 @@
         fillColor: "rgba(255, 165, 52, .14)",
     });
 
-    let selectedShipperId = null;
-    let currentOrderId = null;
-    let allShippers = [];
-
-    // Function to load shipper data from hidden table
-    function loadShippersFromTable() {
-        allShippers = [];
-        const shipperRows = document.querySelectorAll('#shipperTable .shipper-row');
-
-        shipperRows.forEach(row => {
-            const shipper = {
-                id: row.dataset.shipperId,
-                name: row.dataset.shipperName,
-                phone: row.dataset.shipperPhone,
-                email: row.dataset.shipperEmail,
-                address: row.dataset.shipperAddress
-            };
-            allShippers.push(shipper);
-        });
-    }
-
-    // Function to render shipper cards
-    function renderShippers(shipperList) {
-        const shipperContainer = document.getElementById('shipperList');
-        shipperContainer.innerHTML = '';
-
-        if (shipperList.length === 0) {
-            shipperContainer.innerHTML = '<p class="text-center text-muted">No shippers found</p>';
-            return;
-        }
-
-        shipperList.forEach(shipper => {
-            const shipperCard = document.createElement('div');
-            shipperCard.className = 'shipper-card';
-            shipperCard.dataset.shipperId = shipper.id;
-
-            const initials = shipper.name.split(' ').map(n => n[0]).join('').toUpperCase();
-
-            shipperCard.innerHTML = `
-                <div class="shipper-info">
-                    <div class="shipper-avatar">${initials}</div>
-                    <div class="shipper-details">
-                        <h6>${shipper.name}</h6>
-                        <p><i class="fas fa-phone me-1"></i> ${shipper.phone}</p>
-                        <p><i class="fas fa-envelope me-1"></i> ${shipper.email}</p>
-                        <p><i class="fas fa-map-marker-alt me-1"></i> ${shipper.address}</p>
-                    </div>
-                </div>
-            `;
-
-            shipperCard.addEventListener('click', () => selectShipper(shipper.id));
-            shipperContainer.appendChild(shipperCard);
-        });
-    }
-
-    // Function to select shipper
-    function selectShipper(shipperId) {
-        // Remove previous selection
-        document.querySelectorAll('.shipper-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-
-        // Add selection to clicked card
-        const selectedCard = document.querySelector(`[data-shipper-id="${shipperId}"]`);
-        if (selectedCard) {
-            selectedCard.classList.add('selected');
-            selectedShipperId = shipperId;
-            document.getElementById('confirmShippingBtn').disabled = false;
-        }
-    }
-
-    // Search functionality
-    document.getElementById('shipperSearch').addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const filteredShippers = allShippers.filter(shipper =>
-            shipper.name.toLowerCase().includes(searchTerm) ||
-            shipper.phone.includes(searchTerm) ||
-            shipper.email.toLowerCase().includes(searchTerm)
-        );
-        renderShippers(filteredShippers);
-    });
-
-    // Start shipping button click
-    document.getElementById('startShippingBtn').addEventListener('click', function() {
-        currentOrderId = this.dataset.orderId;
-        selectedShipperId = null;
-        document.getElementById('confirmShippingBtn').disabled = true;
-
-        // Load shipper data from hidden table
-        loadShippersFromTable();
-        renderShippers(allShippers);
-
-        const modal = new bootstrap.Modal(document.getElementById('shipperModal'));
-        modal.show();
-    });
-
-    // Confirm shipping button click
-    document.getElementById('confirmShippingBtn').addEventListener('click', function() {
-        if (selectedShipperId && currentOrderId) {
-            // Create form to submit shipper selection
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/myapp/admin/orders/${currentOrderId}/start-shipping`;
-
-            const shipperInput = document.createElement('input');
-            shipperInput.type = 'hidden';
-            shipperInput.name = 'shipperId';
-            shipperInput.value = selectedShipperId;
-
-            form.appendChild(shipperInput);
-            document.body.appendChild(form);
-            form.submit();
-        }
-    });
-
-    // Status change confirmation for other buttons
     $(document).ready(function () {
-        $('.status-btn').on('click', function () {
-            let url = $(this).data('url');
-            let orderId = $(this).data('order-id');
-            let message = $(this).data('message');
-            let button = $(this);
+        console.log('DOM Ready - Initializing order management with SweetAlert');
 
-            // Build the complete URL with order ID
-            let fullUrl = '/myapp/admin/orders/' + orderId + url;
+        // ===== STATUS CHANGE với SweetAlert =====
+        $(document).on('click', '.status-btn', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-            let iconType = 'warning';
-            let confirmButtonClass = 'btn-primary';
+            console.log('Status button clicked');
 
-            if (url.includes('cancel')) {
-                iconType = 'error';
-                confirmButtonClass = 'btn-danger';
-            } else if (url.includes('complete')) {
-                iconType = 'success';
-                confirmButtonClass = 'btn-success';
+            const $btn = $(this);
+            const url = $btn.data('url');
+            const orderId = $btn.data('order-id');
+            const message = $btn.data('message');
+
+            console.log('Button data:', {url, orderId, message});
+
+            if (!url || !orderId || !message) {
+                console.error('Missing required data attributes');
+                swal("Error!", "Missing required data. Please refresh the page.", "error");
+                return;
             }
 
+            const actionUrl = '/myapp/admin/orders/' + orderId + url;
+            const isCancel = url === '/cancel';
+            const isDelete = $btn.hasClass('btn-danger') || $btn.hasClass('btn-outline-danger');
+
             swal({
-                title: "Confirm Status Change",
+                title: "Confirm Action",
                 text: message,
-                icon: iconType,
+                type: isCancel || isDelete ? "warning" : "info",
                 buttons: {
                     cancel: {
-                        text: "Cancel",
-                        value: false,
                         visible: true,
-                        className: "btn-secondary"
+                        text: "Cancel",
+                        className: "btn btn-secondary"
                     },
                     confirm: {
                         text: "Confirm",
-                        value: true,
-                        visible: true,
-                        className: confirmButtonClass
+                        className: isCancel || isDelete ? "btn btn-danger" : "btn btn-primary"
                     }
                 },
-                dangerMode: url.includes('cancel')
-            }).then(function (willProceed) {
-                if (willProceed) {
-                    // Create a temporary form to POST to the specific URL
-                    let tempForm = $('<form>')
-                        .attr('method', 'POST')
-                        .attr('action', fullUrl)
-                        .hide();
+                dangerMode: isCancel || isDelete
+            }).then((willConfirm) => {
+                if (willConfirm) {
+                    console.log('Confirmed, submitting to:', actionUrl);
 
-                    // Append form to body and submit
-                    $('body').append(tempForm);
-                    tempForm.submit();
+                    // Show loading
+                    swal({
+                        title: "Processing...",
+                        text: "Please wait",
+                        buttons: false,
+                        closeOnClickOutside: false,
+                        closeOnEsc: false
+                    });
+
+                    // Create and submit form
+                    const $form = $('<form>')
+                        .attr('method', 'POST')
+                        .attr('action', actionUrl)
+                        .css('display', 'none');
+
+                    // Add CSRF token if exists
+                    const csrfToken = $('meta[name="_csrf"]').attr('content');
+                    if (csrfToken) {
+                        $form.append($('<input>')
+                            .attr('type', 'hidden')
+                            .attr('name', '_csrf')
+                            .val(csrfToken));
+                    }
+
+                    $('body').append($form);
+                    $form[0].submit();
                 }
             });
         });
+
+        // ===== SHIPPER SELECTION FUNCTIONALITY =====
+        let selectedShipperId = null;
+        let currentOrderId = null;
+        let allShippers = [];
+
+        function loadShippersFromTable() {
+            allShippers = [];
+            const shipperRows = document.querySelectorAll('#shipperTable .shipper-row');
+
+            shipperRows.forEach(row => {
+                const shipper = {
+                    id: row.dataset.shipperId,
+                    name: row.dataset.shipperName,
+                    phone: row.dataset.shipperPhone,
+                    email: row.dataset.shipperEmail,
+                    address: row.dataset.shipperAddress
+                };
+                allShippers.push(shipper);
+            });
+            console.log('Loaded shippers:', allShippers.length);
+        }
+
+        function renderShippers(shipperList) {
+            const shipperContainer = document.getElementById('shipperList');
+            shipperContainer.innerHTML = '';
+
+            if (shipperList.length === 0) {
+                shipperContainer.innerHTML = '<p class="text-center text-muted">No shippers found</p>';
+                return;
+            }
+
+            shipperList.forEach(shipper => {
+                const shipperCard = document.createElement('div');
+                shipperCard.className = 'shipper-card';
+                shipperCard.dataset.shipperId = shipper.id;
+
+                const initials = shipper.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+                shipperCard.innerHTML = `
+                    <div class="shipper-info">
+                        <div class="shipper-avatar">${initials}</div>
+                        <div class="shipper-details">
+                            <h6>${shipper.name}</h6>
+                            <p><i class="fas fa-phone"></i> ${shipper.phone}</p>
+                            <p><i class="fas fa-envelope"></i> ${shipper.email}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> ${shipper.address}</p>
+                        </div>
+                    </div>
+                `;
+
+                shipperCard.addEventListener('click', () => selectShipper(shipper.id, shipper.name));
+                shipperContainer.appendChild(shipperCard);
+            });
+        }
+
+        function selectShipper(shipperId) {
+            // Remove previous selection
+            document.querySelectorAll('.shipper-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selection to clicked card
+            const selectedCard = document.querySelector(`[data-shipper-id="${shipperId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+                selectedShipperId = shipperId;
+                const confirmBtn = document.getElementById('confirmShippingBtn');
+                if (confirmBtn) confirmBtn.disabled = false;
+            }
+        }
+
+        // Search functionality
+        const shipperSearch = document.getElementById('shipperSearch');
+        if (shipperSearch) {
+            shipperSearch.addEventListener('input', function (e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredShippers = allShippers.filter(shipper =>
+                    (shipper.name && shipper.name.toLowerCase().includes(searchTerm)) ||
+                    (shipper.phone && shipper.phone.includes(searchTerm)) ||
+                    (shipper.email && shipper.email.toLowerCase().includes(searchTerm))
+                );
+                renderShippers(filteredShippers);
+            });
+        }
+
+        // ===== UNIFIED SHIPPER ASSIGNMENT BUTTON HANDLER =====
+        // Xử lý tất cả các nút assign shipper với class 'shipper-assign-btn'
+        $(document).on('click', '.shipper-assign-btn', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            console.log('Shipper assign button clicked');
+
+            currentOrderId = $(this).data('order-id');
+            selectedShipperId = null;
+
+            const confirmBtn = document.getElementById('confirmShippingBtn');
+            if (confirmBtn) confirmBtn.disabled = true;
+
+            loadShippersFromTable();
+
+            if (allShippers.length === 0) {
+                swal("No Shippers!", "No shippers available for assignment.", "warning");
+                return;
+            }
+
+            // Clear search input
+            const searchInput = document.getElementById('shipperSearch');
+            if (searchInput) searchInput.value = '';
+
+            renderShippers(allShippers);
+
+            const modal = new bootstrap.Modal(document.getElementById('shipperModal'));
+            modal.show();
+        });
+
+        // Confirm shipping button
+        const confirmShippingBtn = document.getElementById('confirmShippingBtn');
+        if (confirmShippingBtn) {
+            confirmShippingBtn.addEventListener('click', function () {
+                if (selectedShipperId && currentOrderId) {
+                    // Hide modal first
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('shipperModal'));
+                    if (modal) modal.hide();
+
+                    // Show loading
+                    swal({
+                        title: "Processing...",
+                        text: "Assigning shipper to order",
+                        buttons: false,
+                        closeOnClickOutside: false
+                    });
+
+                    // Create form and submit
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/myapp/admin/orders/${currentOrderId}/assign-shipper`;
+
+                    const shipperInput = document.createElement('input');
+                    shipperInput.type = 'hidden';
+                    shipperInput.name = 'shipperId';
+                    shipperInput.value = selectedShipperId;
+
+                    // Add CSRF if needed
+                    const csrfToken = $('meta[name="_csrf"]').attr('content');
+                    if (csrfToken) {
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_csrf';
+                        csrfInput.value = csrfToken;
+                        form.appendChild(csrfInput);
+                    }
+
+                    form.appendChild(shipperInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                } else {
+                    swal("Error!", "Please select a shipper first.", "error");
+                }
+            });
+        }
+
+        // Reset modal when it's closed
+        $('#shipperModal').on('hidden.bs.modal', function () {
+            selectedShipperId = null;
+            currentOrderId = null;
+            const confirmBtn = document.getElementById('confirmShippingBtn');
+            if (confirmBtn) confirmBtn.disabled = true;
+
+            const searchInput = document.getElementById('shipperSearch');
+            if (searchInput) searchInput.value = '';
+        });
+
+        // Debug info
+        setTimeout(() => {
+            const statusButtons = $('.status-btn');
+            const shipperButtons = $('.shipper-assign-btn');
+            console.log('Available status buttons:', statusButtons.length);
+            console.log('Available shipper assignment buttons:', shipperButtons.length);
+
+            statusButtons.each(function (i) {
+                const $btn = $(this);
+                console.log(`Status Button ${i + 1}:`, {
+                    text: $btn.text().trim(),
+                    url: $btn.data('url'),
+                    orderId: $btn.data('order-id'),
+                    message: $btn.data('message'),
+                    classes: $btn.attr('class')
+                });
+            });
+
+            shipperButtons.each(function (i) {
+                const $btn = $(this);
+                console.log(`Shipper Button ${i + 1}:`, {
+                    text: $btn.text().trim(),
+                    orderId: $btn.data('order-id'),
+                    classes: $btn.attr('class')
+                });
+            });
+        }, 500);
     });
 </script>
 </body>
