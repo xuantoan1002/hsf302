@@ -2,6 +2,7 @@ package clothes.hsf302_group3_project.service.Impl;
 
 import clothes.hsf302_group3_project.entity.Cart;
 import clothes.hsf302_group3_project.entity.CartItem;
+import clothes.hsf302_group3_project.entity.Product;
 import clothes.hsf302_group3_project.entity.User;
 import clothes.hsf302_group3_project.repository.CartItemRepository;
 import clothes.hsf302_group3_project.repository.CartRepository;

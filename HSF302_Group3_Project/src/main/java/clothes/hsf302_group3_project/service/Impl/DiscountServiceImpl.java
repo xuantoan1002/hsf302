@@ -10,6 +10,9 @@ import clothes.hsf302_group3_project.repository.DiscountEventRepository;
 import clothes.hsf302_group3_project.repository.ProductRepository;
 import clothes.hsf302_group3_project.service.DiscountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,11 +122,38 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
-    public List<DiscountEventDTO> findAll() {
-        List<DiscountEvent> discountEvents = discountEventRepository.findAllWithProduct();
-        return discountEvents.stream()
+    public Page<DiscountEventDTO> getActiveDiscounts(Pageable pageable) {
+        LocalDate today = LocalDate.now();
+        Page<DiscountEvent> eventsPage = discountEventRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(today,today,pageable);
+        List<DiscountEventDTO> content = eventsPage.getContent()
+                .stream()
                 .map(converterDTO::convertToDiscountEventDTO)
-                .collect(Collectors.toList());
+                .toList();
+
+        return new PageImpl<>(content, pageable, eventsPage.getTotalElements());
+    }
+
+    @Override
+    public Page<DiscountEventDTO> getInactiveDiscounts(Pageable pageable) {
+        LocalDate today = LocalDate.now();
+        Page<DiscountEvent> eventsPage = discountEventRepository.findByEndDateBeforeOrStartDateAfter(today,today,pageable);
+        List<DiscountEventDTO> content = eventsPage.getContent()
+                .stream()
+                .map(converterDTO::convertToDiscountEventDTO)
+                .toList();
+
+        return new PageImpl<>(content, pageable, eventsPage.getTotalElements());
+    }
+
+    @Override
+    public Page<DiscountEventDTO> findAll(Pageable pageable) {
+        Page<DiscountEvent> eventsPage = discountEventRepository.findAllWithProduct(pageable);
+        List<DiscountEventDTO> content = eventsPage.getContent()
+                .stream()
+                .map(converterDTO::convertToDiscountEventDTO)
+                .toList();
+
+        return new PageImpl<>(content, pageable, eventsPage.getTotalElements());
     }
     private DiscountEvent mapRequestToEntity(DiscountEventRequest req, DiscountEvent event) {
         event.setName(req.getName());

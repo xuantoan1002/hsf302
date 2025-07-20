@@ -55,20 +55,26 @@ public class ConverterDTO {
         dto.setEndDate(discountEvent.getEndDate());
         dto.setDiscountType(discountEvent.getDiscountType());
         dto.setDiscountValue(discountEvent.getDiscountValue());
-        dto.setProductId(discountEvent.getProduct().getId());
-        dto.setProductName(discountEvent.getProduct().getName());
+        if (discountEvent.getProduct() != null) {
+            dto.setProductId(discountEvent.getProduct().getId());
+            dto.setProductName(discountEvent.getProduct().getName());
+        } else {
+            dto.setProductId(null);
+            dto.setProductName(null);
+        }
+        
         dto.setNote(discountEvent.getNote());
         return dto;
     }
 
-    public ProductImageDTO convertToProductImageDTO(ProductImage image) {
-        if (image == null) return null;
-        ProductImageDTO dto = new ProductImageDTO();
-        dto.setId(image.getId());
-        dto.setImageUrl(image.getImageUrl());
-        dto.setProductId(image.getProduct() != null ? image.getProduct().getId() : null);
-        return dto;
-    }
+//    public ProductImageDTO convertToProductImageDTO(ProductImage image) {
+//        if (image == null) return null;
+//        ProductImageDTO dto = new ProductImageDTO();
+//        dto.setId(image.getId());
+//        dto.setImageUrl(image.getImageUrl());
+//        dto.setProductId(image.getProduct() != null ? image.getProduct().getId() : null);
+//        return dto;
+//    }
 
     public ProductSizeDTO convertToProductSizeDTO(ProductSize productSize) {
         if (productSize == null) {

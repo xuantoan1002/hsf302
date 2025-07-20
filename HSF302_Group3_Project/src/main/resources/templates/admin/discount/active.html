@@ -2,21 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Discount Events List</title>
+    <title>Active Discount Events</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-    <!-- Fonts and icons -->
     <script th:src="@{/admin/js/plugin/webfont/webfont.min.js}"></script>
     <script>
         WebFont.load({
             google: {families: ["Public Sans:300,400,500,600,700"]},
             custom: {
-                families: [
-                    "Font Awesome 5 Solid",
-                    "Font Awesome 5 Regular",
-                    "Font Awesome 5 Brands",
-                    "simple-line-icons"
-                ],
+                families: ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"],
                 urls: ["/admin/css/fonts.min.css"]
             },
             active: function () {
@@ -24,8 +17,6 @@
             }
         });
     </script>
-
-    <!-- CSS -->
     <link rel="stylesheet" th:href="@{/admin/css/bootstrap.min.css}"/>
     <link rel="stylesheet" th:href="@{/admin/css/plugins.min.css}"/>
     <link rel="stylesheet" th:href="@{/admin/css/kaiadmin.min.css}"/>
@@ -35,7 +26,6 @@
 
 <div class="wrapper">
     <div th:replace="/admin/fragment/sidebar :: sidebar"></div>
-
     <div class="main-panel">
         <div th:replace="/admin/fragment/header :: header"></div>
 
@@ -43,7 +33,7 @@
             <div class="page-inner container-fluid">
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="fw-bold text-dark m-0">Discount Events List</h4>
+                    <h4 class="fw-bold text-dark m-0">Active Discount Events</h4>
                     <a th:href="@{/admin/discount/create}" class="btn btn-primary fw-bold shadow-sm">
                         <i class="fas fa-plus-circle me-1"></i> Create New
                     </a>
@@ -87,7 +77,7 @@
                                     </td>
                                 </tr>
                                 <tr th:if="${#lists.isEmpty(eventsPage.content)}">
-                                    <td colspan="9" class="text-center">No discount events available.</td>
+                                    <td colspan="9" class="text-center">No active discount events.</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -97,14 +87,14 @@
                         <nav th:if="${eventsPage.totalPages > 1}" aria-label="Page navigation">
                             <ul class="pagination justify-content-center">
                                 <li class="page-item" th:classappend="${eventsPage.first} ? 'disabled'">
-                                    <a class="page-link" th:href="@{/admin/discount/list(page=${eventsPage.number - 1}, size=${eventsPage.size})}">Previous</a>
+                                    <a class="page-link" th:href="@{/admin/discount/active(page=${eventsPage.number - 1}, size=${eventsPage.size})}">Previous</a>
                                 </li>
                                 <li class="page-item" th:each="i : ${#numbers.sequence(0, eventsPage.totalPages - 1)}"
                                     th:classappend="${i == eventsPage.number} ? 'active'">
-                                    <a class="page-link" th:href="@{/admin/discount/list(page=${i}, size=${eventsPage.size})}" th:text="${i + 1}"></a>
+                                    <a class="page-link" th:href="@{/admin/discount/active(page=${i}, size=${eventsPage.size})}" th:text="${i + 1}"></a>
                                 </li>
                                 <li class="page-item" th:classappend="${eventsPage.last} ? 'disabled'">
-                                    <a class="page-link" th:href="@{/admin/discount/list(page=${eventsPage.number + 1}, size=${eventsPage.size})}">Next</a>
+                                    <a class="page-link" th:href="@{/admin/discount/active(page=${eventsPage.number + 1}, size=${eventsPage.size})}">Next</a>
                                 </li>
                             </ul>
                         </nav>
@@ -117,7 +107,6 @@
     </div>
 </div>
 
-<!-- JS Files -->
 <script th:src="@{/admin/js/core/jquery-3.7.1.min.js}"></script>
 <script th:src="@{/admin/js/core/popper.min.js}"></script>
 <script th:src="@{/admin/js/core/bootstrap.min.js}"></script>
