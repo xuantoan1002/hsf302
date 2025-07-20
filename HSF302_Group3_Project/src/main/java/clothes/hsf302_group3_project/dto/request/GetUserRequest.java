@@ -11,7 +11,6 @@ public class GetUserRequest {
     private String email;
     private String name;
     private String phone;
-    @Pattern(regexp = "^(ASC|DESC)$", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Invalid sort order!")
+    @Pattern(regexp = "ASC|DESC", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Invalid sort order!")
     private String sortOrder;
-    private String orderBy;
 }

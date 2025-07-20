@@ -139,7 +139,7 @@
                                             <th scope="col">Name</th>
                                             <th scope="col">Email</th>
                                             <th scope="col">Phone</th>
-                                            <th scope="col">Address</th>
+                                            <th scope="col">To Shipper At</th>
                                             <th scope="col">Action</th>
                                         </tr>
                                         </thead>
@@ -149,13 +149,7 @@
                                             <td th:text="${shipper.getName()}"></td>
                                             <td th:text="${shipper.getEmail()}"></td>
                                             <td th:text="${shipper.getPhone()}"></td>
-                                            <td th:text="${shipper.getAddress()}"></td>
-                                            <td>
-                                                <a th:href="@{/admin/shippers/{id}(id=${shipper.getId()})}"
-                                                   class="btn btn-sm btn-info">
-                                                    View Details
-                                                </a>
-                                            </td>
+                                            <td th:text="${shipper.getToShipperAt()}"></td>
                                         </tr>
                                         </tbody>
                                     </table>
@@ -164,7 +158,9 @@
                         </form>
                     </div>
                 </div>
+
             </div>
+
         </div>
     </div>
 </div>
@@ -234,6 +230,45 @@
         lineColor: "#ffa534",
         fillColor: "rgba(255, 165, 52, .14)",
     });
+
+    <div className="row mt-4">
+        <div className="col-md-12">
+            <h4 className="fw-bold">Danh sách đơn hàng của bạn</h4>
+            <table className="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Địa chỉ</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${shipperOrders}">
+                    <td th:text="${order.code}">DH001</td>
+                    <td th:text="${order.customerName}">Nguyễn Văn A</td>
+                    <td th:text="${order.address}">123 Đường ABC</td>
+                    <td>
+                        <span className="badge bg-info" th:text="${order.status}">Đang giao</span>
+                    </td>
+                    <td>
+                        <form th:action="@{/shipper/orders/update}" method="post">
+                            <input type="hidden" name="orderId" th:value="${order.id}"/>
+                            <select name="newStatus" className="form-select d-inline w-auto">
+                                <option value="Đang giao">Đang giao</option>
+                                <option value="Hoàn thành">Hoàn thành</option>
+                                <option value="Thất bại">Thất bại</option>
+                            </select>
+                            <button type="submit" className="btn btn-sm btn-success ms-2">Cập nhật</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </script>
 </body>
 </html>

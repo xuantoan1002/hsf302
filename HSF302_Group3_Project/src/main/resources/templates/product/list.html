@@ -62,6 +62,7 @@
                         <th>#</th>
                         <th>Image</th>
                         <th>Product Name</th>
+                        <th>Category</th>
                         <th class="text-end">Price</th>
                         <th class="text-center">Stock</th>
                         <th class="text-center">Status</th>
@@ -72,10 +73,10 @@
                     <tr th:each="product, stat : ${products}">
                         <td th:text="${stat.count}"></td>
                         <td>
-                            <img th:if="${product.getImageUrl() != null && !product.getImageUrl().isEmpty()}"
-                                 th:src="${product.imageUrl}"
+                            <img th:if="${product.images != null && !product.images.isEmpty()}"
+                                 th:src="${product.images[0].imageUrl}"
                                  class="product-image-thumb img-thumbnail rounded">
-                            <div th:unless="${product.imageUrl != null && !product.imageUrl.isEmpty()}"
+                            <div th:unless="${product.images != null && !product.images.isEmpty()}"
                                  class="product-image-thumb bg-light d-flex align-items-center justify-content-center">
                                 <i class="bi bi-image text-muted"></i>
                             </div>

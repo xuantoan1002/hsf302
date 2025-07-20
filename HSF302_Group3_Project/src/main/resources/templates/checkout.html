@@ -88,10 +88,10 @@
         <table class="table">
             <thead>
             <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Subtotal</th>
+                <th>Sản phẩm</th>
+                <th>Giá cả</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
             </tr>
             </thead>
             <tbody>
@@ -99,7 +99,7 @@
 <!--                <td>-->
 <!--                    <img th:src="@{${item.product.imageUrl}}" class="product-img" alt="image">-->
 <!--                </td>-->
-                <td><span class="product-name" th:text="${item.product.name}"></span></td>
+                <td><span class="product-name" th:text="${item.product.name}">Tên sản phẩm</span></td>
                 <td th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
                 <td th:text="${item.quantity}"></td>
                 <td th:text="${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
@@ -107,12 +107,39 @@
             </tbody>
         </table>
 
-        <a th:href="@{/cart}" class="back-link">← Back To Cart</a>
+        <a th:href="@{/cart}" class="back-link">← Quay lại giỏ hàng</a>
     </div>
 
     <!-- RIGHT - Form nhập thông tin người nhận + tổng tiền -->
     <div class="checkout-right order-summary">
-        <h3>Receiver Information</h3>
+        <h3>Thông Tin Người Nhận</h3>
+<!--        <form th:action="@{/place-order}" >-->
+<!--            <label>Tên người nhận</label>-->
+<!--&lt;!&ndash;            <input type="text" name="recipientName" class="form-control" required th:value="${recipientName}"/>&ndash;&gt;-->
+
+<!--            <label>Địa chỉ người nhận</label>-->
+<!--&lt;!&ndash;            <input type="text" name="recipientAddress" class="form-control" required th:value="${recipientAddress}"/>&ndash;&gt;-->
+
+<!--            <label>Số điện thoại</label>-->
+<!--&lt;!&ndash;            <input type="text" name="recipientPhone" class="form-control" required th:value="${recipientPhone}"/>&ndash;&gt;-->
+
+<!--            <hr>-->
+<!--            <h3>Thông Tin Thanh Toán</h3>-->
+<!--            <div class="row justify-content-between">-->
+<!--                <div class="col">Phí vận chuyển:</div>-->
+<!--                <div class="col text-end" th:text="${shippingFee} + ' đ'">0 đ</div>-->
+<!--            </div>-->
+<!--            <div class="row justify-content-between">-->
+<!--                <div class="col">Hình thức:</div>-->
+<!--                <div class="col text-end">Thanh toán khi nhận hàng (COD)</div>-->
+<!--            </div>-->
+<!--            <div class="row justify-content-between fw-bold">-->
+<!--                <div class="col">Tổng số tiền:</div>-->
+<!--                <div class="col text-end" th:text="${totalPrice} + ' đ'">0 đ</div>-->
+<!--            </div>-->
+
+<!--            <button type="submit" class="btn btn-success mt-3">XÁC NHẬN THANH TOÁN</button>-->
+<!--        </form>-->
 
         <form th:action="@{/place-order}" method="get"> <!-- hoặc post nếu bạn muốn -->
             <div th:each="item : ${cartItems}">
@@ -120,32 +147,32 @@
             </div>
 
             <!-- thông tin người nhận -->
-            <label>Receiver Name</label>
-            <input type="text" name="recipientName" class="form-control" th:value="${name}" readonly />
+            <label>Tên người nhận</label>
+            <input type="text" name="recipientName" class="form-control" required />
 
-            <label>Receiver Address</label>
-            <input type="text" name="recipientAddress" class="form-control" th:value="${address}" readonly />
+            <label>Địa chỉ người nhận</label>
+            <input type="text" name="recipientAddress" class="form-control" required />
 
-            <label>Receiver Phone</label>
-            <input type="text" name="recipientPhone" class="form-control" required th:value="${phone}" readonly/>
+            <label>Số điện thoại</label>
+            <input type="text" name="recipientPhone" class="form-control" required />
 
             <!-- Thông tin thanh toán -->
             <hr>
-            <h3>Invoice Information</h3>
+            <h3>Thông Tin Thanh Toán</h3>
             <div class="row justify-content-between">
-                <div class="col">Shipping Fee:</div>
-                <div class="col text-end" th:text="${shippingFee} + ' đ'">0đ</div>
+                <div class="col">Phí vận chuyển:</div>
+                <div class="col text-end" th:text="${shippingFee} + ' đ'">0 đ</div>
             </div>
             <div class="row justify-content-between">
-                <div class="col">Payment Method:</div>
-                <div class="col text-end">Cash On Delivery</div>
+                <div class="col">Hình thức:</div>
+                <div class="col text-end">Thanh toán khi nhận hàng (COD)</div>
             </div>
             <div class="row justify-content-between fw-bold">
-                <div class="col">Total:</div>
-                <div class="col text-end" th:text="${totalPrice} + ' đ'"></div>
+                <div class="col">Tổng số tiền:</div>
+                <div class="col text-end" th:text="${totalPrice} + ' đ'">0 đ</div>
             </div>
 
-            <button type="submit" class="btn btn-success mt-3">Payment Confirmation</button>
+            <button type="submit" class="btn btn-success mt-3">XÁC NHẬN THANH TOÁN</button>
         </form>
 
     </div>
@@ -154,4 +181,3 @@
 <div th:replace="user/fragment/footer :: footer"></div>
 </body>
 </html>
-

@@ -3,11 +3,13 @@ package clothes.hsf302_group3_project.service.Impl;
 import clothes.hsf302_group3_project.converter.ConverterDTO;
 import clothes.hsf302_group3_project.dto.request.GetOrderRequest;
 import clothes.hsf302_group3_project.dto.response.OrderDTO;
-import clothes.hsf302_group3_project.dto.response.OrderItemDTO;
 import clothes.hsf302_group3_project.entity.*;
 import clothes.hsf302_group3_project.enums.OrderStatus;
 import clothes.hsf302_group3_project.exception.BusinessException;
-import clothes.hsf302_group3_project.repository.*;
+import clothes.hsf302_group3_project.repository.CartItemRepository;
+import clothes.hsf302_group3_project.repository.CartRepository;
+import clothes.hsf302_group3_project.repository.OrderItemRepository;
+import clothes.hsf302_group3_project.repository.OrderRepository;
 import clothes.hsf302_group3_project.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -18,30 +20,23 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static clothes.hsf302_group3_project.security.utils.SecurityUtil.getCurrentUserEmail;
 
 @RequiredArgsConstructor
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    private final UserRepository userRepository;
     private final CartRepository cartRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final CartItemRepository cartItemRepository;
     private final ConverterDTO converterDTO;
-    private final OrderStatusHistoryRepository orderStatusHistoryRepository;
 
     @Transactional
-    public void handlePlaceOrder(List<Long> cartItemIds) {
-        String email = getCurrentUserEmail();
-        User user = this.userRepository.findByEmail(email).get();
+    public void handlePlaceOrder(
+            User user, HttpSession session, List<Long> cartItemIds) {
+
         Cart cart = this.cartRepository.findByUser(user);
         if (cart != null) {
             List<CartItem> cartItems = new ArrayList<>();
@@ -53,7 +48,8 @@ public class OrderServiceImpl implements OrderService {
                 //create order
                 Order order = new Order();
                 order.setCustomer(user);
-                order.setStatus(OrderStatus.PENDING);
+
+                order.setStatus(OrderStatus.PAID);
 
                 double sum = 0;
                 for (CartItem ct : cartItems) {
@@ -87,30 +83,11 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Transactional
-    @Override
-    public boolean markOrderAsCompleted(Long id) {
-        Optional<Order> orderOpt = orderRepository.findById(id);
-        if (orderOpt.isEmpty()) {
-            return false;
-        }
-
-        Order order = orderOpt.get();
-        if (order.getStatus() == OrderStatus.COMPLETED) {
-            return false;
-        }
-
-        order.setStatus(OrderStatus.COMPLETED);
-        orderRepository.save(order);
-        return true;
-    }
-
-
     @Override
     public Page<OrderDTO> getOrders(GetOrderRequest request, Pageable pageable) {
         String shipperName = request.getShipperName();
         String customerName = request.getCustomerName();
-        OrderStatus status = (request.getStatus() == null || request.getStatus().isBlank()) ? OrderStatus.PENDING : OrderStatus.valueOf(request.getStatus());
+        OrderStatus status = (request.getStatus() == null || request.getStatus().isBlank()) ? OrderStatus.PAID : OrderStatus.valueOf(request.getStatus());
         String sortOrder = (request.getSortOrder() == null || request.getSortOrder().isBlank()) ? "DESC" : request.getSortOrder();
         String sortField = (request.getSortField() == null || request.getSortField().isBlank()) ? "createdAt" : request.getSortField();
         Double totalFrom, totalTo;
@@ -124,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
         Sort.Direction direction = Sort.Direction.fromString(sortOrder);
         pageable = PageRequest.of(pageable.getPageNumber(), 10, Sort.by(direction, sortField));
         Page<Order> orders;
-        if (OrderStatus.PENDING.equals(status) || OrderStatus.CANCELLED.equals(status) || OrderStatus.CONFIRMED.equals(status)) {
+        if (OrderStatus.PAID.equals(status) || OrderStatus.CANCELLED.equals(status) || OrderStatus.CONFIRMED.equals(status)) {
             orders = orderRepository.findNoneShipperOrders(customerName, status, totalFrom, totalTo, pageable);
         } else {
             orders = orderRepository.findOrders(shipperName, customerName, status, totalFrom, totalTo, pageable);
@@ -133,139 +110,23 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDTO> getOrders() {
-        User user = userRepository.findByEmail(getCurrentUserEmail()).get();
-        List<Order> orders = user.getPlacedOrders();
-        List<OrderDTO> orderDTOs = new ArrayList<>();
-        for (Order order : orders) {
-            orderDTOs.add(converterDTO.convertToOrderDTO(order));
-        }
-        return orderDTOs;
-    }
-
-    @Transactional
-    @Override
-    public void confirmOrder(Long id) {
-        Order thisOrder = orderRepository.findById(id).orElseThrow(
-                () -> new BusinessException("Order not found!")
-        );
-        if (!thisOrder.getStatus().equals(OrderStatus.PENDING)) {
-            throw new BusinessException("Order status must be PENDING to Confirm!");
-        }
-        thisOrder.setStatus(OrderStatus.CONFIRMED);
-        orderRepository.save(thisOrder);
-
-        OrderStatusHistory orderStatusHistory = OrderStatusHistory.builder()
-                .order(thisOrder)
-                .status(OrderStatus.CONFIRMED)
-                .changedAt(LocalDateTime.now())
-                .build();
-
-        orderStatusHistoryRepository.save(orderStatusHistory);
-    }
-
-    @Transactional
-    @Override
-    public void cancelOrder(Long id) {
-        Order thisOrder = orderRepository.findById(id).orElseThrow(
-                () -> new BusinessException("Order not found!")
-        );
-        if (!thisOrder.getStatus().equals(OrderStatus.PENDING) && !thisOrder.getStatus().equals(OrderStatus.CONFIRMED)) {
-            throw new BusinessException("Order status must be PENDING or CONFIRMED to Cancel!");
-        }
-        thisOrder.setStatus(OrderStatus.CANCELLED);
-        orderRepository.save(thisOrder);
-
-        OrderStatusHistory orderStatusHistory = OrderStatusHistory.builder()
-                .order(thisOrder)
-                .status(OrderStatus.CANCELLED)
-                .changedAt(LocalDateTime.now())
-                .build();
-
-        orderStatusHistoryRepository.save(orderStatusHistory);
-    }
-
-    @Transactional
-    @Override
-    public void assignShipper(Long orderId, Long shipperId) {
-        Order thisOrder = orderRepository.findById(orderId).orElseThrow(
-                () -> new BusinessException("Order not found!")
-        );
-        if (!thisOrder.getStatus().equals(OrderStatus.CONFIRMED)) {
-            throw new BusinessException("Order status must be CONFIRMED to start shipping!");
-        }
-        User thisShipper = userRepository.findById(shipperId).orElseThrow(
-                () -> new BusinessException("Shipper not found!")
-        );
-        thisOrder.setShipper(thisShipper);
-        orderRepository.save(thisOrder);
-    }
-
-    @Override
-    public Page<OrderDTO> getOrdersByShipperId(Long shipperId, GetOrderRequest request, Pageable pageable) {
-        String customerName = request.getCustomerName();
-        OrderStatus status = (request.getStatus() == null || request.getStatus().isBlank()) ? OrderStatus.CONFIRMED : OrderStatus.valueOf(request.getStatus());
-        String sortOrder = (request.getSortOrder() == null || request.getSortOrder().isBlank()) ? "DESC" : request.getSortOrder();
-        String sortField = (request.getSortField() == null || request.getSortField().isBlank()) ? "createdAt" : request.getSortField();
-        Double totalFrom, totalTo;
+    public void updateStatus(Long orderId, String newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException("Order not found with id: " + orderId));
         try {
-            totalFrom = (request.getTotalFrom() == null || request.getTotalFrom().isBlank()) ? null : Double.parseDouble(request.getTotalFrom());
-            totalTo = (request.getTotalTo() == null || request.getTotalTo().isBlank()) ? null : Double.parseDouble(request.getTotalTo());
-        } catch (NumberFormatException e) {
-            throw new BusinessException("Total value must be a number!");
+            OrderStatus status = OrderStatus.valueOf(newStatus.toUpperCase());
+            order.setStatus(status);
+            orderRepository.save(order);
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException("Invalid order status: " + newStatus);
         }
-
-        Sort.Direction direction = Sort.Direction.fromString(sortOrder);
-        pageable = PageRequest.of(pageable.getPageNumber(), 10, Sort.by(direction, sortField));
-        Page<Order> orders = orderRepository.findByShipperId(shipperId, status, customerName, totalFrom, totalTo, pageable);
-        return orders.map(converterDTO::convertToOrderDTO);
     }
 
     @Override
-    public Page<OrderDTO> getOrdersByCustomerId(Long customerId, GetOrderRequest request, Pageable pageable) {
-        String shipperName = request.getShipperName();
-        OrderStatus status = (request.getStatus() == null || request.getStatus().isBlank()) ? OrderStatus.CONFIRMED : OrderStatus.valueOf(request.getStatus());
-        String sortOrder = (request.getSortOrder() == null || request.getSortOrder().isBlank()) ? "DESC" : request.getSortOrder();
-        String sortField = (request.getSortField() == null || request.getSortField().isBlank()) ? "createdAt" : request.getSortField();
-        Double totalFrom, totalTo;
-        try {
-            totalFrom = (request.getTotalFrom() == null || request.getTotalFrom().isBlank()) ? null : Double.parseDouble(request.getTotalFrom());
-            totalTo = (request.getTotalTo() == null || request.getTotalTo().isBlank()) ? null : Double.parseDouble(request.getTotalTo());
-        } catch (NumberFormatException e) {
-            throw new BusinessException("Total value must be a number!");
-        }
-
-        Sort.Direction direction = Sort.Direction.fromString(sortOrder);
-        pageable = PageRequest.of(pageable.getPageNumber(), 10, Sort.by(direction, sortField));
-        Page<Order> orders = orderRepository.findByCustomerId(customerId, status, shipperName, totalFrom, totalTo, pageable);
-        return orders.map(converterDTO::convertToOrderDTO);
+    public Order findById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException("Order not found with id: " + orderId));
     }
 
-    @Transactional
-    @Override
-    public void addOrdersForShipper(Long shipperId, List<Long> orderIds) {
-        List<Order> orders = orderRepository.findAllById(orderIds);
-
-        for (Order order : orders) {
-            if (order.getStatus() != OrderStatus.CONFIRMED) {
-                throw new BusinessException("Assignment is only allowed for orders with status CONFIRMED. Order #" + order.getId() + " currently has status: " + order.getStatus() + ".");
-            }
-        }
-        orderRepository.addOrdersForShipper(shipperId, orderIds);
-    }
-
-    @Override
-    public List<OrderDTO> getAvailableOrders() {
-        List<Order> orders = orderRepository.findAvailableOrders(OrderStatus.CONFIRMED);
-        return orders.stream().map(converterDTO::convertToOrderDTO).toList();
-    }
-
-    @Override
-    public OrderDTO getOrder(Long id) {
-        Order order = orderRepository.findById(id).orElseThrow(
-                () -> new BusinessException("Order not found!")
-        );
-        return converterDTO.convertToOrderDTO(order);
-    }
 
 }

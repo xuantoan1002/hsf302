@@ -8,11 +8,6 @@
 <body>
 <div class="container mt-4">
     <h1>Category Management</h1>
-    <!-- Error message if deletion failed -->
-    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-        <span th:text="${errorMessage}"></span>
-    </div>
-
 
     <!-- Button to add new category -->
     <a th:href="@{/categories/new}" class="btn btn-primary mb-3">Add New Category</a>

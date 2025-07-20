@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Shipper - Danh sách đơn hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fff7f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background-color: #ff5722;
+        }
+        .navbar .nav-link, .navbar-brand {
+            color: white !important;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .table th {
+            background-color: #ffe0b2;
+            color: #bf360c;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .btn-orange {
+            background-color: #ff7043;
+            color: white;
+            border: none;
+        }
+        .btn-orange:hover {
+            background-color: #e64a19;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .search-bar input, .search-bar select {
+            flex: 1;
+            min-width: 180px;
+        }
+        .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="#">Shipper Panel</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Đăng xuất</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h2 class="text-center text-danger mb-4">Danh sách đơn hàng</h2>
+
+    <div class="search-bar mb-4">
+        <input type="text" id="searchName" class="form-control" placeholder="Tìm theo tên khách hàng" oninput="filterOrders()">
+        <select id="statusFilter" class="form-select" onchange="filterOrders()">
+            <option value="">-- Tất cả trạng thái --</option>
+            <option value="SHIPPING">Đang giao</option>
+            <option value="DELIVERED">Đã giao</option>
+            <option value="CANCELLED">Đã hủy</option>
+        </select>
+        <select id="sortOption" class="form-select" onchange="filterOrders()">
+            <option value="newest">Mới nhất</option>
+            <option value="oldest">Cũ nhất</option>
+            <option value="highToLow">Tổng tiền cao → thấp</option>
+            <option value="lowToHigh">Tổng tiền thấp → cao</option>
+        </select>
+    </div>
+
+    <div class="card p-3">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center">
+                <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Địa chỉ</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
+                    <th>Chi tiết</th>
+                </tr>
+                </thead>
+                <tbody id="orderTableBody"></tbody>
+            </table>
+            <nav class="mt-3 text-center">
+                <button class="btn btn-sm btn-outline-secondary me-2" onclick="prevPage()">Trang trước</button>
+                <span id="pageInfo"></span>
+                <button class="btn btn-sm btn-outline-secondary ms-2" onclick="nextPage()">Trang sau</button>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+    const defaultOrders = [
+        {
+            id: 1001,
+            customerName: "Nguyễn Văn A",
+            address: "123 Lê Lợi, Quận 1, TP.HCM",
+            total: 550000,
+            status: "SHIPPING",
+            createdAt: "2025-07-18",
+            items: [
+                { name: "Áo thun nam", quantity: 2, price: 150000 },
+                { name: "Quần jean nữ", quantity: 1, price: 250000 }
+            ]
+        },
+        {
+            id: 1002,
+            customerName: "Trần Thị B",
+            address: "45 Nguyễn Trãi, Quận 5, TP.HCM",
+            total: 750000,
+            status: "DELIVERED",
+            createdAt: "2025-07-17",
+            items: [
+                { name: "Váy công sở", quantity: 1, price: 400000 },
+                { name: "Áo sơ mi nữ", quantity: 2, price: 175000 }
+            ]
+        },
+        {
+            id: 1003,
+            customerName: "Lê Văn C",
+            address: "12 Đinh Tiên Hoàng, Bình Thạnh",
+            total: 290000,
+            status: "SHIPPING",
+            createdAt: "2025-07-16",
+            items: [
+                { name: "Áo ba lỗ", quantity: 1, price: 90000 },
+                { name: "Quần short nam", quantity: 1, price: 200000 }
+            ]
+        },
+        {
+            id: 1004,
+            customerName: "Phạm Thị Dung",
+            address: "88 Hai Bà Trưng, Quận 3",
+            total: 820000,
+            status: "CANCELLED",
+            createdAt: "2025-07-15",
+            items: [
+                { name: "Áo khoác nữ", quantity: 1, price: 450000 },
+                { name: "Chân váy dài", quantity: 1, price: 370000 }
+            ]
+        },
+        {
+            id: 1005,
+            customerName: "Hoàng Minh",
+            address: "10 Pasteur, Quận 1",
+            total: 620000,
+            status: "DELIVERED",
+            createdAt: "2025-07-14",
+            items: [
+                { name: "Áo sơ mi nam", quantity: 2, price: 310000 }
+            ]
+        },
+        {
+            id: 1006,
+            customerName: "Đặng Thu Hằng",
+            address: "99 Nguyễn Huệ, Quận 1",
+            total: 960000,
+            status: "SHIPPING",
+            createdAt: "2025-07-13",
+            items: [
+                { name: "Váy dạ hội", quantity: 1, price: 960000 }
+            ]
+        },
+        // Thêm 9 đơn mới
+        {
+            id: 1007,
+            customerName: "Phan Văn Khoa",
+            address: "50 Trần Hưng Đạo, Quận 1",
+            total: 430000,
+            status: "DELIVERED",
+            createdAt: "2025-07-12",
+            items: [
+                { name: "Áo polo nam", quantity: 1, price: 430000 }
+            ]
+        },
+        {
+            id: 1008,
+            customerName: "Lê Thị Lan",
+            address: "77 Lý Tự Trọng, Quận 3",
+            total: 780000,
+            status: "SHIPPING",
+            createdAt: "2025-07-11",
+            items: [
+                { name: "Đầm công sở", quantity: 1, price: 780000 }
+            ]
+        },
+        {
+            id: 1009,
+            customerName: "Trần Văn Hùng",
+            address: "11 Nguyễn Thị Minh Khai, Quận 1",
+            total: 600000,
+            status: "CANCELLED",
+            createdAt: "2025-07-10",
+            items: [
+                { name: "Áo khoác nam", quantity: 1, price: 600000 }
+            ]
+        },
+        {
+            id: 1010,
+            customerName: "Phạm Thị Mai",
+            address: "99 Võ Văn Tần, Quận 3",
+            total: 350000,
+            status: "DELIVERED",
+            createdAt: "2025-07-09",
+            items: [
+                { name: "Áo sơ mi nữ", quantity: 1, price: 350000 }
+            ]
+        },
+        {
+            id: 1011,
+            customerName: "Hoàng Văn Long",
+            address: "23 Nguyễn Huệ, Quận 1",
+            total: 870000,
+            status: "SHIPPING",
+            createdAt: "2025-07-08",
+            items: [
+                { name: "Quần tây nam", quantity: 2, price: 435000 }
+            ]
+        },
+        {
+            id: 1012,
+            customerName: "Nguyễn Thị Hương",
+            address: "55 Lê Lai, Quận 1",
+            total: 450000,
+            status: "DELIVERED",
+            createdAt: "2025-07-07",
+            items: [
+                { name: "Áo thun nữ", quantity: 3, price: 150000 }
+            ]
+        },
+        {
+            id: 1013,
+            customerName: "Trương Văn Tài",
+            address: "44 Hai Bà Trưng, Quận 3",
+            total: 1200000,
+            status: "SHIPPING",
+            createdAt: "2025-07-06",
+            items: [
+                { name: "Áo vest nam", quantity: 1, price: 1200000 }
+            ]
+        },
+        {
+            id: 1014,
+            customerName: "Đinh Thị Thanh",
+            address: "15 Nguyễn Thái Học, Quận 1",
+            total: 300000,
+            status: "CANCELLED",
+            createdAt: "2025-07-05",
+            items: [
+                { name: "Váy xòe", quantity: 1, price: 300000 }
+            ]
+        },
+        {
+            id: 1015,
+            customerName: "Lê Minh Hoàng",
+            address: "77 Phạm Ngọc Thạch, Quận 3",
+            total: 500000,
+            status: "DELIVERED",
+            createdAt: "2025-07-04",
+            items: [
+                { name: "Áo thun nam", quantity: 2, price: 250000 }
+            ]
+        }
+    ];
+
+    let orders = JSON.parse(localStorage.getItem('orders')) || defaultOrders;
+    let currentPage = 1;
+    const ordersPerPage = 10;
+    let filteredOrders = [];
+
+    function formatCurrency(number) {
+        return number.toLocaleString('vi-VN') + '₫';
+    }
+
+    function statusToText(status) {
+        switch (status) {
+            case "SHIPPING": return "Đang giao";
+            case "DELIVERED": return "Đã giao";
+            case "CANCELLED": return "Đã hủy";
+            default: return status;
+        }
+    }
+
+    function saveOrders() {
+        localStorage.setItem('orders', JSON.stringify(orders));
+    }
+
+    function renderOrders(data) {
+        const tableBody = document.getElementById("orderTableBody");
+        tableBody.innerHTML = "";
+
+        if (data.length === 0) {
+            tableBody.innerHTML = "<tr><td colspan='7' class='text-muted'>Không có đơn hàng nào</td></tr>";
+            return;
+        }
+
+        const startIndex = (currentPage - 1) * ordersPerPage;
+        const endIndex = startIndex + ordersPerPage;
+        const paginated = data.slice(startIndex, endIndex);
+
+        paginated.forEach(order => {
+            const detailsId = "details-" + order.id;
+            let row = `
+                <tr>
+                    <td>${order.id}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.address || ''}</td>
+                    <td>${formatCurrency(order.total)}</td>
+                    <td>${statusToText(order.status)}</td>
+                    <td>${order.createdAt}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#${detailsId}">
+                            Xem chi tiết
+                        </button>
+                    </td>
+                </tr>
+                <tr class="collapse" id="${detailsId}">
+                    <td colspan="7" class="text-start">
+                        <div class="p-3">
+                            <strong>Sản phẩm:</strong>
+                            <ul>`;
+            order.items.forEach(item => {
+                row += `<li>${item.name} - SL: ${item.quantity} - Giá: ${formatCurrency(item.price)}</li>`;
+            });
+            row += `</ul>
+                    <label for="status-${order.id}">Cập nhật trạng thái:</label>
+                    <select id="status-${order.id}" class="form-select w-auto d-inline-block ms-2" onchange="updateStatus(${order.id}, this.value)">
+                        <option value="SHIPPING" ${order.status === 'SHIPPING' ? 'selected' : ''}>Đang giao</option>
+                        <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>Đã giao</option>
+                        <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>Đã hủy</option>
+                    </select>
+                    </div>
+                </td>
+            </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+
+        const totalPages = Math.ceil(data.length / ordersPerPage);
+        document.getElementById("pageInfo").textContent = `Trang ${currentPage} / ${totalPages}`;
+    }
+
+    function updateStatus(orderId, newStatus) {
+        const order = orders.find(o => o.id === orderId);
+        if (order && newStatus) {
+            order.status = newStatus;
+            saveOrders();
+            filterOrders();
+        }
+    }
+
+    function filterOrders() {
+        const nameInput = document.getElementById("searchName").value.toLowerCase();
+        const statusInput = document.getElementById("statusFilter").value;
+        const sortOption = document.getElementById("sortOption").value;
+
+        filteredOrders = orders.filter(o =>
+            o.customerName.toLowerCase().includes(nameInput) &&
+            (statusInput === "" || o.status === statusInput)
+        );
+
+        switch (sortOption) {
+            case "newest":
+                filteredOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                break;
+            case "oldest":
+                filteredOrders.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                break;
+            case "highToLow":
+                filteredOrders.sort((a, b) => b.total - a.total);
+                break;
+            case "lowToHigh":
+                filteredOrders.sort((a, b) => a.total - b.total);
+                break;
+        }
+
+        currentPage = 1;
+        renderOrders(filteredOrders);
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderOrders(filteredOrders);
+        }
+    }
+
+    function nextPage() {
+        const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderOrders(filteredOrders);
+        }
+    }
+
+    renderOrders(orders);
+    filteredOrders = orders;
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -19,12 +19,9 @@ public class CartItem {
 
     private double price;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "product_id")
     private Product product;
-
-//    @Column(name = "size", nullable = false, length = 10) // S, M, L, XL
-//    private String size;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")

@@ -420,7 +420,6 @@ var myDailySalesChart = new Chart(dailySalesChart, {
 	}
 });
 
-
 $("#activeUsersChart").sparkline([112,109,120,107,110,85,87,90,102,109,120,99,110,85,87,94], {
 	type: 'bar',
 	height: '100',

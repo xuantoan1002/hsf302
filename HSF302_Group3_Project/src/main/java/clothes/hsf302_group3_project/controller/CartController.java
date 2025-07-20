@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.util.ArrayList;
 import java.util.List;
 
-import static clothes.hsf302_group3_project.security.utils.SecurityUtil.getCurrentUserEmail;
-
 @Controller
 public class CartController {
 
@@ -39,8 +37,9 @@ public class CartController {
 
     @GetMapping("/cart")
     public String cart(Model model, HttpServletRequest request) {
-        String email = getCurrentUserEmail();
-        User user = userRepository.findByEmail(email).get();
+        HttpSession session = request.getSession();
+        // Lấy user từ session (tạm hardcode user id = 1L)
+        User user = userRepository.findById(1L).get();
         Cart cart = cartRepository.findByUser(user);
 
         CartDTO cartDTO = cart == null ? new CartDTO() : converterDTO.convertToCartDTO(cart);
@@ -51,7 +50,7 @@ public class CartController {
             cartItemDTOs.add(converterDTO.convertToCartItemDTO(cartItem));
         }
 
-        cartDTO.setItems(cartItemDTOs);
+        cartDTO.setItems(cartItemDTOs); 
 
         double totalPrice = 0;
         for (CartItem cartItem : cartItems) {
@@ -60,15 +59,16 @@ public class CartController {
 
         model.addAttribute("totalPrice", totalPrice);
         model.addAttribute("cartItems", cartItemDTOs); // optional nếu không dùng
-        model.addAttribute("cart", cartDTO);
+        model.addAttribute("cart", cartDTO); 
 
         return "cart";
     }
 
     @PostMapping("/delete-cart-product/{id}")
-    public String deleteCartDetail(@PathVariable long id){
+    public String deleteCartDetail(@PathVariable long id, HttpServletRequest request){
+        HttpSession session = request.getSession(false);
         long cartItemId = id;
-        this.cartService.handleRemoveCartItem(cartItemId);
+        this.cartService.handleRemoveCartItem(cartItemId, session);
         return "redirect:/cart";
     }
 

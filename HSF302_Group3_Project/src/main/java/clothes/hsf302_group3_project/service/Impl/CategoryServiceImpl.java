@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -46,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = new Category();
         category.setName(categoryDTO.getName());
         Category savedCategory = categoryRepository.save(category);
-        return new CategoryDTO(savedCategory.getId(), savedCategory.getName());
+        return new CategoryDTO(savedCategory.getId(), savedCategory.getName(), null, 0);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         category.setName(categoryDTO.getName());
         Category updatedCategory = categoryRepository.save(category);
-        return new CategoryDTO(updatedCategory.getId(), updatedCategory.getName());
+        return new CategoryDTO(updatedCategory.getId(), updatedCategory.getName(), null, 0);
     }
 
     @Override
@@ -64,17 +65,14 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(Integer id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-        if(category.getProducts().size() <=0) {
-            categoryRepository.delete(category);
-        }
-        else throw new ResourceNotFoundException("Product in category already exists");
+        categoryRepository.delete(category);
     }
 
     @Override
     public CategoryDTO getCategoryById(Integer id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-        return new CategoryDTO(category.getId(), category.getName());
+        return new CategoryDTO(category.getId(), category.getName(), null, 0);
     }
 
 

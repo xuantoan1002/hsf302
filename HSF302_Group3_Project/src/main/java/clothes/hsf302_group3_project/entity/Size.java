@@ -1,4 +1,4 @@
-package clothes.hsf302_group3_project.enums;
+package clothes.hsf302_group3_project.entity;
 
 public enum Size {
     S("Small"),

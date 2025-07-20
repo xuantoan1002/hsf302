@@ -6,7 +6,6 @@ import clothes.hsf302_group3_project.dto.response.UserDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-
 public interface UserService {
     Page<UserDTO> getAdmins(GetUserRequest getUserRequest, Pageable pageable);
 
@@ -20,13 +19,5 @@ public interface UserService {
 
     void makeUserToShipper(String email);
 
-    void changePassword(ChangePasswordRequest changePasswordRequest);
-
-    Page<UserDTO> getAvailableShippers(GetUserRequest getUserRequest, Pageable pageable);
-
-    void startShipping(Long shipperId);
-
-    UserDTO getUserById(Long id);
-
-    void deleteShipper(Long shipperId);
+    void changePassword (ChangePasswordRequest changePasswordRequest);
 }

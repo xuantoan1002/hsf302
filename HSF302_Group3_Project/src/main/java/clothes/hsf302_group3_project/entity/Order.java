@@ -31,11 +31,6 @@ public class Order {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
-
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private User customer;

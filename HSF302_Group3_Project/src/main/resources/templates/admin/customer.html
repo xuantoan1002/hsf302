@@ -135,7 +135,7 @@
                                             <th scope="col">Name</th>
                                             <th scope="col">Email</th>
                                             <th scope="col">Phone</th>
-                                            <th scope="col">Address</th>
+                                            <th scope="col">Created At</th>
                                             <th scope="col">Action</th>
                                         </tr>
                                         </thead>
@@ -145,13 +145,7 @@
                                             <td th:text="${customer.getName()}"></td>
                                             <td th:text="${customer.getEmail()}"></td>
                                             <td th:text="${customer.getPhone()}"></td>
-                                            <td th:text="${customer.getAddress()}"></td>
-                                            <td>
-                                                <a th:href="@{/admin/customers/{id}(id=${customer.getId()})}"
-                                                   class="btn btn-sm btn-info">
-                                                    View Details
-                                                </a>
-                                            </td>
+                                            <td th:text="${customer.getCreatedAt()}"></td>
                                         </tr>
                                         </tbody>
                                     </table>

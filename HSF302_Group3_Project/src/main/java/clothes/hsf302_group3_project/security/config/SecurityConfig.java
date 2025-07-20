@@ -77,8 +77,7 @@ public class SecurityConfig {
 
         public static void main(String[] args) {
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            String rawPassword = "123";
-//            String rawPassword = "11111111";
+            String rawPassword = "11111111";
             String encodedPassword = encoder.encode(rawPassword);
             System.out.println(encodedPassword);
         }

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,51 +29,25 @@ public class ConverterDTO {
         dto.setCategoryId(product.getCategory() != null ? product.getCategory().getId() : null);
         dto.setStatus(product.getStatus());
         dto.setCreatedAt(product.getCreatedAt());
-        dto.setImageUrl(product.getImageUrl());
 
-        if (product.getCategory() != null) {
-            dto.setCategoryId(product.getCategory().getId());
-        }
-
-        // Convert sizes
-        if (product.getSizes() != null) {
-            List<ProductSizeDTO> sizeDTOs = product.getSizes().stream()
-                    .map(this::convertToProductSizeDTO)
+        if (product.getImages() != null) {
+            List<ProductImageDTO> imageDTOs = product.getImages().stream()
+                    .map(this::convertToProductImageDTO)
                     .collect(Collectors.toList());
-            dto.setSizes(sizeDTOs);
+            dto.setImages(imageDTOs);
         }
 
         return dto;
     }
-    public DiscountEventDTO convertToDiscountEventDTO(DiscountEvent discountEvent) {
-        DiscountEventDTO dto = new DiscountEventDTO();
-        dto.setId(discountEvent.getId());
-        dto.setTargetType(discountEvent.getTargetType());
-        dto.setName(discountEvent.getName());
-        dto.setStartDate(discountEvent.getStartDate());
-        dto.setEndDate(discountEvent.getEndDate());
-        dto.setDiscountType(discountEvent.getDiscountType());
-        dto.setDiscountValue(discountEvent.getDiscountValue());
-        if (discountEvent.getProduct() != null) {
-            dto.setProductId(discountEvent.getProduct().getId());
-            dto.setProductName(discountEvent.getProduct().getName());
-        } else {
-            dto.setProductId(null);
-            dto.setProductName(null);
-        }
-        
-        dto.setNote(discountEvent.getNote());
+
+    public ProductImageDTO convertToProductImageDTO(ProductImage image) {
+        if (image == null) return null;
+        ProductImageDTO dto = new ProductImageDTO();
+        dto.setId(image.getId());
+        dto.setImageUrl(image.getImageUrl());
+        dto.setProductId(image.getProduct() != null ? image.getProduct().getId() : null);
         return dto;
     }
-
-//    public ProductImageDTO convertToProductImageDTO(ProductImage image) {
-//        if (image == null) return null;
-//        ProductImageDTO dto = new ProductImageDTO();
-//        dto.setId(image.getId());
-//        dto.setImageUrl(image.getImageUrl());
-//        dto.setProductId(image.getProduct() != null ? image.getProduct().getId() : null);
-//        return dto;
-//    }
 
     public ProductSizeDTO convertToProductSizeDTO(ProductSize productSize) {
         if (productSize == null) {
@@ -82,38 +55,21 @@ public class ConverterDTO {
         }
         ProductSizeDTO dto = new ProductSizeDTO();
         dto.setId(productSize.getId());
-        dto.setSizeName(productSize.getName());
+        dto.setSize(productSize.getSize());
         dto.setQuantity(productSize.getQuantity());
-        dto.setProductId(productSize.getProduct().getId());
         return dto;
-    }
-
-    public Product convertToProduct(ProductDTO productDTO) {
-        Product product = new Product();
-        product.setId(productDTO.getId());
-        product.setName(productDTO.getName());
-        product.setDescription(productDTO.getDescription());
-        product.setPrice(productDTO.getPrice());
-        product.setStock(productDTO.getStock());
-        product.setStatus(productDTO.getStatus());
-        product.setCreatedAt(productDTO.getCreatedAt());
-        product.setImageUrl(productDTO.getImageUrl());
-        return product;
-    }
-
-    public ProductSize convertToProductSize(ProductSizeDTO productSizeDTO) {
-        ProductSize entity = new ProductSize();
-        entity.setId(productSizeDTO.getId());
-        entity.setName(productSizeDTO.getSizeName());
-        entity.setQuantity(productSizeDTO.getQuantity());
-        return entity;
     }
 
     public UserDTO convertToUserDTO(User user) {
         if (user == null) {
             return null;
         }
-        UserDTO dto = modelMapper.map(user, UserDTO.class);
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setRole(user.getRole());
         dto.setCreatedAt(dateTimeConverter.toString(user.getCreatedAt()));
         return dto;
     }
@@ -154,13 +110,4 @@ public class ConverterDTO {
         return dto;
     }
 
-    public OrderItemDTO toOrderItemDTO(OrderItem oi) {
-        OrderItemDTO oiDTO = new OrderItemDTO();
-        modelMapper.map(oi, oiDTO);
-        oiDTO.setId(oi.getId());
-        oiDTO.setQuantity(oi.getQuantity());
-        oiDTO.setPrice(oi.getPrice());
-        oiDTO.setProduct(convertToProductDTO(oi.getProduct()));
-        return oiDTO;
-    }
 }
