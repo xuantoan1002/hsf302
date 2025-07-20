@@ -110,34 +110,4 @@ public class ConverterDTO {
         return dto;
     }
 
-    public OrderItemDTO toOrderItemDTO(OrderItem orderItem) {
-        if (orderItem == null) {
-            return null;
-        }
-
-        OrderItemDTO dto = new OrderItemDTO();
-        dto.setId(orderItem.getId());
-        dto.setQuantity(orderItem.getQuantity());
-        dto.setPrice(orderItem.getPrice());
-        dto.setProduct(convertToProductDTO(orderItem.getProduct()));
-        // Nếu cần, thêm thông tin khác như orderId...
-        return dto;
-    }
-
-    public DiscountEventDTO convertToDiscountEventDTO(DiscountEvent discountEvent) {
-        if (discountEvent == null) {
-            return null;
-        }
-
-        DiscountEventDTO dto = new DiscountEventDTO();
-        dto.setId(discountEvent.getId());
-        dto.setName(discountEvent.getName());
-//        dto.setDescription(discountEvent.getNote()); // ✅ dùng note thay vì description
-        dto.setStartDate(discountEvent.getStartDate());
-        dto.setEndDate(discountEvent.getEndDate());
-        // Nếu cần thêm các trường khác thì bạn bổ sung ở đây
-
-        return dto;
-    }
-
 }
