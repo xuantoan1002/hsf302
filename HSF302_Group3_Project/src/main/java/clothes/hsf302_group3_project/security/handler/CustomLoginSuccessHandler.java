@@ -26,7 +26,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
             if (user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
                 response.sendRedirect("/myapp/admin/admins");
             } else {
-                response.sendRedirect("/myapp/register");
+                response.sendRedirect("/myapp");
             }
         }
     }

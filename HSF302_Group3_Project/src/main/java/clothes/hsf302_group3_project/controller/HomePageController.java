@@ -22,6 +22,8 @@ public class HomePageController {
 
     @Autowired
     private ProductService productService;
+    @Autowired
+    private CartService cartService;
 
     @GetMapping()
     public String home(
@@ -72,5 +74,15 @@ public class HomePageController {
         model.addAttribute("product", productDTO);
         model.addAttribute("categories", categories);
         return "HomePageProduct/productDetail";
+    }
+
+    @PostMapping("/add-product-to-cart/{id}")
+    public String addProductToCart(@PathVariable int id, HttpServletRequest request){
+        HttpSession session = request.getSession(false);
+        int productId = id;
+//        String email = "tqt@gmail.com";
+//        String email = (String) session.getAttribute("email");
+        this.cartService.handleAddProductToCart(productId, 1l);
+        return "redirect:/";
     }
 }
