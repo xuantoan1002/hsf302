@@ -1,0 +1,27 @@
+<div th:fragment="addUserModal(actionUrl, modalId, modalTitle)">
+    <div class="modal fade" th:id="${modalId}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" th:action="${actionUrl}">
+                    <div class="modal-header">
+                        <h5 class="modal-title" th:id="${modalId}+'Label'" th:text="${modalTitle}"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   placeholder="Enter email" required>
+                        </div>
+                        <!-- Thêm trường nếu cần -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

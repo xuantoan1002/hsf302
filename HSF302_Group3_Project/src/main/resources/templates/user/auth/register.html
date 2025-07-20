@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" th:href="@{/user/img/fav.png}">
+    <meta charset="UTF-8">
+    <title>Karma Shop</title>
+
+    <link rel="stylesheet" th:href="@{/user/css/linearicons.css}">
+    <link rel="stylesheet" th:href="@{/user/css/owl.carousel.css}">
+    <link rel="stylesheet" th:href="@{/user/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/user/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/user/css/nice-select.css}">
+    <link rel="stylesheet" th:href="@{/user/css/nouislider.min.css}">
+    <link rel="stylesheet" th:href="@{/user/css/bootstrap.css}">
+    <link rel="stylesheet" th:href="@{/user/css/main.css}">
+</head>
+<body>
+
+<div th:replace="user/fragment/header :: header"></div>
+
+<section class="login_box_area section_gap">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="login_form_inner">
+                    <h3>Register new account</h3>
+                    <form class="row login_form"
+                          th:action="@{/register}"
+                          th:object="${registerRequest}"
+                          method="post"
+                          id="registerForm"
+                          novalidate="novalidate">
+
+                        <!-- Email -->
+                        <div class="col-md-12 form-group">
+                            <input type="text" class="form-control" th:field="*{email}" placeholder="Email"
+                                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'Email'">
+                            <p class="form-text text-danger small mt-1 mb-0 text-left"
+                               th:if="${#fields.hasErrors('email')}">
+                                <i class="fa fa-exclamation-circle mr-1"></i>
+                                <span th:errors="*{email}"></span>
+                            </p>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="col-md-12 form-group">
+                            <input type="password" id="password" class="form-control" th:field="*{password}" placeholder="Password"
+                                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'">
+                            <span class="toggle-password" toggle="#password">
+                                <i class="fa fa-eye"></i>
+                            </span>
+                            <p class="form-text text-danger small mt-1 mb-0 text-left"
+                               th:if="${!#fields.hasErrors('email') and #fields.hasErrors('password')}">
+                                <i class="fa fa-exclamation-circle mr-1"></i>
+                                <span th:errors="*{password}"></span>
+                            </p>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="col-md-12 form-group">
+                            <input type="password" id="confirmPassword" class="form-control" th:field="*{confirmPassword}"
+                                   placeholder="Confirm Password"
+                                   onfocus="this.placeholder = ''" onblur="this.placeholder = 'Confirm Password'">
+                            <span class="toggle-password" toggle="#confirmPassword">
+                                <i class="fa fa-eye"></i>
+                            </span>
+                            <p class="form-text text-danger small mt-1 mb-0 text-left"
+                               th:if="${!#fields.hasErrors('email') and !#fields.hasErrors('password') and #fields.hasErrors('confirmPassword')}">
+                                <i class="fa fa-exclamation-circle mr-1"></i>
+                                <span th:errors="*{confirmPassword}"></span>
+                            </p>
+                        </div>
+
+                        <!-- Agree to Terms -->
+                        <div class="col-md-12 form-group">
+                            <div class="creat_account">
+                                <input type="checkbox" id="f-option2" th:field="*{agreeTerms}">
+                                <label for="f-option2">I agree to the terms of the site</label>
+                            </div>
+                            <p class="form-text text-danger small mt-1 mb-0 text-left"
+                               th:if="${!#fields.hasErrors('email') and !#fields.hasErrors('password') and !#fields.hasErrors('confirmPassword') and #fields.hasErrors('agreeTerms')}">
+                                <i class="fa fa-exclamation-circle mr-1"></i>
+                                <span th:errors="*{agreeTerms}"></span>
+                            </p>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="col-md-12 form-group">
+                            <button type="submit" class="primary-btn">Register</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="login_box_img">
+                    <img class="img-fluid" th:src="@{/user/img/login.jpg}" alt="">
+                    <div class="hover">
+                        <h4>You already have an account?</h4>
+                        <a class="primary-btn" th:href="@{/login}">Go to login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div th:replace="/user/fragment/footer :: footer"></div>
+<script>
+    document.querySelectorAll(".toggle-password").forEach(function (el) {
+        el.addEventListener("click", function () {
+            const input = document.querySelector(this.getAttribute("toggle"));
+            const icon = this.querySelector("i");
+            const type = input.getAttribute("type") === "password" ? "text" : "password";
+            input.setAttribute("type", type);
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
+        });
+    });
+</script>
+<script th:src="@{/user/js/vendor/jquery-2.2.4.min.js}"></script>
+<script th:src="@{/user/js/vendor/bootstrap.min.js}"></script>
+<script th:src="@{/user/js/jquery.ajaxchimp.min.js}"></script>
+<script th:src="@{/user/js/jquery.nice-select.min.js}"></script>
+<script th:src="@{/user/js/jquery.sticky.js}"></script>
+<script th:src="@{/user/js/nouislider.min.js}"></script>
+<script th:src="@{/user/js/jquery.magnific-popup.min.js}"></script>
+<script th:src="@{/user/js/owl.carousel.min.js}"></script>
+<script th:src="@{/user/js/gmaps.min.js}"></script>
+<script th:src="@{/user/js/main.js}"></script>
+</body>
+</html>
